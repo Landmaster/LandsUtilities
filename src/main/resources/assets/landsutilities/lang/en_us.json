@@ -1,0 +1,20 @@
+{
+  "block.landsutilities.auto_anvil": "Auto Anvil",
+  "item.landsutilities.remote_control": "Remote Control",
+  "item.landsutilities.landsutilities_guide": "Land's Utilities Guide",
+  "landing_text.landsutilities.landsutilities_guide": "A guide on the various contraptions that Land's Utilities offers",
+  "gui.landsutilities.direction.none": "None",
+  "gui.landsutilities.direction.up": "Up",
+  "gui.landsutilities.direction.down": "Down",
+  "gui.landsutilities.direction.north": "North",
+  "gui.landsutilities.direction.south": "South",
+  "gui.landsutilities.direction.east": "East",
+  "gui.landsutilities.direction.west": "West",
+  "gui.landsutilities.config.external_tank": "XP Tank: %s",
+  "gui.landsutilities.redstone.ignore": "Ignore Redstone",
+  "gui.landsutilities.redstone.low": "Active on Redstone Low",
+  "gui.landsutilities.redstone.high": "Active on Redstone High",
+  "message.landsutilities.linked_remote": "Linked to %s %s %s",
+  "tooltip.landsutilities.linked_remote": "Remote is linked to %s %s %s",
+  "tab.landsutilities": "Land's Utilities"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Remote Control",
+  "icon": "landsutilities:remote_control",
+  "category": "landsutilities:utilities",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The Remote Control lets you remotely access the menu of a selected block in range (in fact, more generically right-click on it). Shift-right-click on a block to link the remote control to it, and right-click the remote control to open that block's menu."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "landsutilities:remote_control"
+    }
+  ]
+}

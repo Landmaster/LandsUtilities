@@ -1,0 +1,7 @@
+// 1.21.1	2026-03-20T20:40:55.543440613	Recipes
+973221bd3847297c7d4075e3260ad4cb21b8aeaa data/landsutilities/advancement/recipes/misc/auto_anvil.json
+6c9e81c8eb76c0ee174e05cdbf4b23a2e052f8c2 data/landsutilities/advancement/recipes/misc/remote_control.json
+940cf37562a95a36e0aaef65a6641e03e6fdfae8 data/landsutilities/advancement/recipes/misc/remote_control_reset.json
+16a9fd2ae841359d4f21cbe34e2dc1d4a64caa36 data/landsutilities/recipe/auto_anvil.json
+93edb54c230cf1f2933e141a8384ac628dad5a24 data/landsutilities/recipe/remote_control.json
+080cf666d093bd3093af9f132f2fa24e4074dc73 data/landsutilities/recipe/remote_control_reset.json
