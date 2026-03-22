@@ -1,6 +1,7 @@
 {
   "block.landsutilities.auto_anvil": "Auto Anvil",
   "item.landsutilities.remote_control": "Remote Control",
+  "item.landsutilities.remote_control.current": "Remote Control (current target: #%d %s)",
   "item.landsutilities.landsutilities_guide": "Land's Utilities Guide",
   "landing_text.landsutilities.landsutilities_guide": "A guide on the various contraptions that Land's Utilities offers",
   "gui.landsutilities.direction.none": "None",
@@ -14,7 +15,12 @@
   "gui.landsutilities.redstone.ignore": "Ignore Redstone",
   "gui.landsutilities.redstone.low": "Active on Redstone Low",
   "gui.landsutilities.redstone.high": "Active on Redstone High",
-  "message.landsutilities.linked_remote": "Linked to %s %s %s",
-  "tooltip.landsutilities.linked_remote": "Remote is linked to %s %s %s",
-  "tab.landsutilities": "Land's Utilities"
+  "message.landsutilities.linked_remote": "Added to remote: %s %s %s",
+  "tooltip.landsutilities.linked_remote.amount": "%d location(s) stored",
+  "tab.landsutilities": "Land's Utilities",
+  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs",
+  "message.landsutilities.not_remote_control": "No remote control in either hand!",
+  "message.landsutilities.empty_remote_control": "Remote control has no linked blocks!",
+  "message.landsutilities.renamed_link": "Renamed remote control link name to %s",
+  "message.landsutilities.removed_link": "Removed block from remote control: %s"
 }

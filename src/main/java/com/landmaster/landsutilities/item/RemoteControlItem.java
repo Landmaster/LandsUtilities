@@ -1,8 +1,8 @@
 package com.landmaster.landsutilities.item;
 
+import com.google.common.collect.Streams;
 import com.landmaster.landsutilities.LandsUtilities;
-import com.landmaster.landsutilities.util.Location;
-import com.landmaster.landsutilities.util.LocationAndFace;
+import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -21,22 +21,45 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-public class RemoteControlItem extends Item {
+public class RemoteControlItem extends Item implements MouseWheelItem {
+    public static final int LIMIT = 5;
+
     public RemoteControlItem(Properties properties) {
         super(properties);
+    }
+
+    public static Optional<RemoteControlLink> linked(ItemStack stack) {
+        var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
+        int index = stack.getOrDefault(LandsUtilities.LINKED_MENU_INDEX, 0);
+        if (index >= 0 && index < linkedBlocks.size()) {
+            return Optional.of(linkedBlocks.get(index));
+        }
+        return Optional.empty();
+    }
+
+    @Nonnull
+    @Override
+    public Component getName(@Nonnull ItemStack stack) {
+        var linked = linked(stack);
+        return linked
+                .map(remoteControlLink -> Component.translatable(
+                        this.getDescriptionId(stack) + ".current",
+                        stack.getOrDefault(LandsUtilities.LINKED_MENU_INDEX, 0),
+                        remoteControlLink.name()))
+                .orElseGet(() -> Component.translatable(this.getDescriptionId(stack)));
     }
 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltipComponents, @Nonnull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        var linked = stack.get(LandsUtilities.LINKED_MENU_BLOCK);
-        if (linked != null) {
-            tooltipComponents.add(Component.translatable("tooltip.landsutilities.linked_remote",
-                    linked.location().pos().toShortString(),
-                    linked.location().dimension().location().getPath(),
-                    Util.configToComponent(linked.face())).withStyle(ChatFormatting.YELLOW));
-        }
+
+        tooltipComponents.add(Component.translatable("tooltip.landsutilities.remote_control").withStyle(ChatFormatting.AQUA));
+
+        var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
+        tooltipComponents.add(Component.translatable("tooltip.landsutilities.linked_remote.amount", linkedBlocks.size()).withStyle(ChatFormatting.YELLOW));
     }
 
     @Nonnull
@@ -47,16 +70,28 @@ public class RemoteControlItem extends Item {
         var player = context.getPlayer();
         if (context.isSecondaryUseActive()) {
             if (!level.isClientSide) {
-                stack.set(LandsUtilities.LINKED_MENU_BLOCK, new LocationAndFace(
-                        new Location(context.getClickedPos(), level.dimension()),
-                        context.getClickedFace()
-                ));
-                if (player != null) {
-                    player.displayClientMessage(
-                            Component.translatable("message.landsutilities.linked_remote",
-                                    context.getClickedPos().toShortString(), level.dimension().location().toString(),
-                                    Util.configToComponent(context.getClickedFace())),
-                            false);
+                var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
+                if (linkedBlocks.size() < LIMIT) {
+                    var blockState = level.getBlockState(context.getClickedPos());
+                    var newEntry = new RemoteControlLink(
+                            blockState.getBlock().getName(),
+                            context.getClickedPos(),
+                            level.dimension(),
+                            context.getClickedFace()
+                    );
+                    if (!linkedBlocks.contains(newEntry)) {
+                        stack.set(LandsUtilities.LINKED_MENU_BLOCKS, Streams.concat(
+                                linkedBlocks.stream(), Stream.of(newEntry)
+                        ).toList());
+
+                        if (player != null) {
+                            player.displayClientMessage(
+                                    Component.translatable("message.landsutilities.linked_remote",
+                                            newEntry.pos().toShortString(), newEntry.dimension().location().toString(),
+                                            Util.configToComponent(newEntry.face())),
+                                    false);
+                        }
+                    }
                 }
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -69,31 +104,40 @@ public class RemoteControlItem extends Item {
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand usedHand) {
         if (!player.isSecondaryUseActive()) {
             var stack = player.getItemInHand(usedHand);
-            var linked = stack.get(LandsUtilities.LINKED_MENU_BLOCK);
-            if (linked != null) {
+            var result = linked(stack).map(l -> {
                 if (level.isClientSide) {
                     return InteractionResultHolder.success(stack);
                 } else {
-                    var dimension = linked.location().dimension();
+                    var dimension = l.dimension();
                     var targetLevel = ((ServerLevel) level).getServer().getLevel(dimension);
                     if (targetLevel == null) {
                         return InteractionResultHolder.fail(stack);
                     }
-                    var state = targetLevel.getBlockState(linked.location().pos());
+                    var state = targetLevel.getBlockState(l.pos());
                     return new InteractionResultHolder<>(state.useWithoutItem(targetLevel, player, new BlockHitResult(
-                            Vec3.atCenterOf(linked.location().pos()).relative(linked.face(), 0.5),
-                            linked.face(),
-                            linked.location().pos(),
+                            Vec3.atCenterOf(l.pos()).relative(l.face(), 0.5),
+                            l.face(),
+                            l.pos(),
                             false
                     )), stack);
                 }
-            }
+            });
+            if (result.isPresent()) return result.get();
         }
         return super.use(level, player, usedHand);
     }
 
     @Override
     public boolean isFoil(@Nonnull ItemStack stack) {
-        return stack.has(LandsUtilities.LINKED_MENU_BLOCK);
+        return linked(stack).isPresent();
+    }
+
+    @Override
+    public void onMouseWheel(Player player, InteractionHand hand, boolean up) {
+        var stack = player.getItemInHand(hand);
+        var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
+        if (!linkedBlocks.isEmpty()) {
+            stack.update(LandsUtilities.LINKED_MENU_INDEX, 0, v -> (v + (up ? 1 : linkedBlocks.size()-1)) % linkedBlocks.size());
+        }
     }
 }

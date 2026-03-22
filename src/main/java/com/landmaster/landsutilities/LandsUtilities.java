@@ -2,15 +2,21 @@ package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.block.AutoAnvilBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
+import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
+import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
 import com.landmaster.landsutilities.network.IOConfigPacket;
+import com.landmaster.landsutilities.network.MouseWheelPacket;
 import com.landmaster.landsutilities.network.RedstoneConfigPacket;
-import com.landmaster.landsutilities.util.LocationAndFace;
+import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -25,12 +31,14 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -77,10 +85,15 @@ public class LandsUtilities {
                     })
                     .build());
 
-    public static final Supplier<DataComponentType<LocationAndFace>> LINKED_MENU_BLOCK = DATA_COMPONENTS.registerComponentType(
+    public static final Supplier<DataComponentType<List<RemoteControlLink>>> LINKED_MENU_BLOCKS = DATA_COMPONENTS.registerComponentType(
+            "linked_menu_blocks", builder -> builder
+                    .persistent(RemoteControlLink.CODEC.listOf())
+                    .networkSynchronized(RemoteControlLink.STREAM_CODEC.apply(ByteBufCodecs.list()))
+    );
+    public static final Supplier<DataComponentType<Integer>> LINKED_MENU_INDEX = DATA_COMPONENTS.registerComponentType(
             "linked_menu_block", builder -> builder
-                    .persistent(LocationAndFace.CODEC)
-                    .networkSynchronized(LocationAndFace.STREAM_CODEC)
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT)
     );
 
     public LandsUtilities(IEventBus modEventBus, ModContainer modContainer) {
@@ -99,10 +112,21 @@ public class LandsUtilities {
         var registrar = event.registrar("1");
         registrar.playBidirectional(IOConfigPacket.TYPE, IOConfigPacket.STREAM_CODEC, IOConfigPacket::handle);
         registrar.playBidirectional(RedstoneConfigPacket.TYPE, RedstoneConfigPacket.STREAM_CODEC, RedstoneConfigPacket::handle);
+        registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
     }
 
     @SubscribeEvent
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, AUTO_ANVIL_TE.get(), (te, dir) -> te.automationItemHandler());
+    }
+
+    @SubscribeEvent
+    private static void registerCommands(RegisterCommandsEvent event) {
+        var dispatcher = event.getDispatcher();
+        dispatcher.register(
+                Commands.literal(MODID)
+                        .then(RemoteRenameLinkCommand.register(dispatcher))
+                        .then(RemoteDeleteLinkCommand.register(dispatcher))
+        );
     }
 }

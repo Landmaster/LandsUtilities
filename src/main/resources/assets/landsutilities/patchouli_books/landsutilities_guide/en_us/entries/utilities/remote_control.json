@@ -4,12 +4,16 @@
   "category": "landsutilities:utilities",
   "pages": [
     {
-      "type": "patchouli:text",
-      "text": "The Remote Control lets you remotely access the menu of a selected block in range (in fact, more generically right-click on it). Shift-right-click on a block to link the remote control to it, and right-click the remote control to open that block's menu."
-    },
-    {
       "type": "patchouli:crafting",
       "recipe": "landsutilities:remote_control"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Remote Control lets you remotely access the menu of a selected block in range (in fact, more generically right-click on it). Shift-right-click on a block to add it to the remote control (up to 5 blocks can be stored). Shift-scroll to cycle between blocks. Right-click the remote control to open that block's menu."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Type /landsutilities rename_link <name> as a command to rename what the current block connection is called, and /landsutilities delete_link to delete the current block from the remote control."
     }
   ]
 }
