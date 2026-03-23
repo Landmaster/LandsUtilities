@@ -6,9 +6,7 @@ import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
-import com.landmaster.landsutilities.network.IOConfigPacket;
-import com.landmaster.landsutilities.network.MouseWheelPacket;
-import com.landmaster.landsutilities.network.RedstoneConfigPacket;
+import com.landmaster.landsutilities.network.*;
 import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -20,8 +18,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -62,12 +64,15 @@ public class LandsUtilities {
             Registries.CREATIVE_MODE_TAB, MODID
     );
     public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
+    public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
+            DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, MODID);
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             BlockBehaviour.Properties.of().noOcclusion());
     public static final DeferredItem<BlockItem> AUTO_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(AUTO_ANVIL);
 
-    public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new);
+    public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
+            new Item.Properties().stacksTo(1));
 
     public static final Supplier<BlockEntityType<AutoAnvilBlockEntity>> AUTO_ANVIL_TE = BLOCK_ENTITIES.register("auto_anvil",
             () -> BlockEntityType.Builder.of(AutoAnvilBlockEntity::new, AUTO_ANVIL.get()).build(null));
@@ -96,6 +101,10 @@ public class LandsUtilities {
                     .networkSynchronized(ByteBufCodecs.VAR_INT)
     );
 
+    public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> REMOTE_RANGE = ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
+            "remote_range", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_ITEM).listOf())
+    );
+
     public LandsUtilities(IEventBus modEventBus, ModContainer modContainer) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
@@ -103,6 +112,7 @@ public class LandsUtilities {
         MENU_TYPES.register(modEventBus);
         CREATIVE_TABS.register(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
+        ENCHANTMENT_COMPONENT_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -113,6 +123,8 @@ public class LandsUtilities {
         registrar.playBidirectional(IOConfigPacket.TYPE, IOConfigPacket.STREAM_CODEC, IOConfigPacket::handle);
         registrar.playBidirectional(RedstoneConfigPacket.TYPE, RedstoneConfigPacket.STREAM_CODEC, RedstoneConfigPacket::handle);
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
+        registrar.playToClient(RemoteAdvancedMenuPacket.TYPE, RemoteAdvancedMenuPacket.STREAM_CODEC, RemoteAdvancedMenuPacket::handle);
+        registrar.playToClient(RemoteMenuPacket.TYPE, RemoteMenuPacket.STREAM_CODEC, RemoteMenuPacket::handle);
     }
 
     @SubscribeEvent

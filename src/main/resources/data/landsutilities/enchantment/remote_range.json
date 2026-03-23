@@ -1,0 +1,32 @@
+{
+  "description": {
+    "translate": "enchantment.landsutilities.remote_range"
+  },
+  "supported_items": ["landsutilities:remote_control"],
+  "weight": 10,
+  "max_level": 3,
+  "max_cost": {
+    "base": 55,
+    "per_level_above_first": 8
+  },
+  "min_cost": {
+    "base": 2,
+    "per_level_above_first": 8
+  },
+  "anvil_cost": 2,
+  "slots": ["hand"],
+  "effects": {
+    "landsutilities:remote_range": [
+      {
+        "effect": {
+          "type": "minecraft:multiply",
+          "factor": {
+            "type": "minecraft:lookup",
+            "values": [20, 1000],
+            "fallback": 100000000
+          }
+        }
+      }
+    ]
+  }
+}

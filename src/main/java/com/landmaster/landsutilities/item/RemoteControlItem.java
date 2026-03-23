@@ -1,5 +1,6 @@
 package com.landmaster.landsutilities.item;
 
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Streams;
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.util.RemoteControlLink;
@@ -11,21 +12,35 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
+@EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RemoteControlItem extends Item implements MouseWheelItem {
     public static final int LIMIT = 5;
+
+    public static final ConcurrentMap<AbstractContainerMenu, Double> MENU_TO_REMOTE_RANGE = new MapMaker()
+            .weakKeys()
+            .makeMap();
+    public static final ThreadLocal<Double> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0);
 
     public RemoteControlItem(Properties properties) {
         super(properties);
@@ -114,12 +129,27 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                         return InteractionResultHolder.fail(stack);
                     }
                     var state = targetLevel.getBlockState(l.pos());
-                    return new InteractionResultHolder<>(state.useWithoutItem(targetLevel, player, new BlockHitResult(
-                            Vec3.atCenterOf(l.pos()).relative(l.face(), 0.5),
-                            l.face(),
-                            l.pos(),
-                            false
-                    )), stack);
+                    var desiredRange = new MutableFloat(1);
+                    EnchantmentHelper.runIterationOnItem(stack, (enchant, enchantLevel) -> {
+                        enchant.value().modifyItemFilteredCount(
+                                LandsUtilities.REMOTE_RANGE.get(),
+                                (ServerLevel) level,
+                                enchantLevel,
+                                stack,
+                                desiredRange
+                        );
+                    });
+                    try {
+                        DESIRED_RANGE.set(desiredRange.doubleValue());
+                        return new InteractionResultHolder<>(state.useWithoutItem(targetLevel, player, new BlockHitResult(
+                                Vec3.atCenterOf(l.pos()).relative(l.face(), 0.5),
+                                l.face(),
+                                l.pos(),
+                                false
+                        )), stack);
+                    } finally {
+                        DESIRED_RANGE.set(0.0);
+                    }
                 }
             });
             if (result.isPresent()) return result.get();
@@ -128,16 +158,29 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
     }
 
     @Override
-    public boolean isFoil(@Nonnull ItemStack stack) {
-        return linked(stack).isPresent();
-    }
-
-    @Override
     public void onMouseWheel(Player player, InteractionHand hand, boolean up) {
         var stack = player.getItemInHand(hand);
         var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
         if (!linkedBlocks.isEmpty()) {
             stack.update(LandsUtilities.LINKED_MENU_INDEX, 0, v -> (v + (up ? 1 : linkedBlocks.size()-1)) % linkedBlocks.size());
+        }
+    }
+
+    @Override
+    public boolean isEnchantable(@Nonnull ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getEnchantmentValue(@Nonnull ItemStack stack) {
+        return 10;
+    }
+
+    @SubscribeEvent
+    private static void onContainerOpen(PlayerContainerEvent.Open event) {
+        double desiredRange = DESIRED_RANGE.get();
+        if (desiredRange > 1.0) {
+            MENU_TO_REMOTE_RANGE.put(event.getContainer(), desiredRange);
         }
     }
 }
