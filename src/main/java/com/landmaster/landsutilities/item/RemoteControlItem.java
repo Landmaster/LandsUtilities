@@ -2,6 +2,7 @@ package com.landmaster.landsutilities.item;
 
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Streams;
+import com.landmaster.landsutilities.Config;
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
@@ -17,7 +18,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -35,7 +35,6 @@ import java.util.stream.Stream;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RemoteControlItem extends Item implements MouseWheelItem {
-    public static final int LIMIT = 5;
 
     public static final ConcurrentMap<AbstractContainerMenu, Double> MENU_TO_REMOTE_RANGE = new MapMaker()
             .weakKeys()
@@ -44,6 +43,21 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
 
     public RemoteControlItem(Properties properties) {
         super(properties);
+    }
+
+    public static int getMaxLinkedBlocks(ItemStack stack, ServerLevel level) {
+        int maxLinked = Config.MAX_LINKED_BLOCKS.get();
+        MutableFloat enchantmentBonus = new MutableFloat(0);
+        EnchantmentHelper.runIterationOnItem(stack, (enchant, enchantLevel) -> {
+            enchant.value().modifyItemFilteredCount(
+                    LandsUtilities.REMOTE_LINKED_BLOCKS.get(),
+                    level,
+                    enchantLevel,
+                    stack,
+                    enchantmentBonus
+            );
+        });
+        return maxLinked + (int) enchantmentBonus.floatValue();
     }
 
     public static Optional<RemoteControlLink> linked(ItemStack stack) {
@@ -83,13 +97,14 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
         var stack = context.getItemInHand();
         var level = context.getLevel();
         var player = context.getPlayer();
-        if (context.isSecondaryUseActive()) {
+        if (player != null && context.isSecondaryUseActive()) {
             if (!level.isClientSide) {
                 var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
-                if (linkedBlocks.size() < LIMIT) {
+                if (linkedBlocks.size() < getMaxLinkedBlocks(stack, (ServerLevel) level)) {
                     var blockState = level.getBlockState(context.getClickedPos());
+                    var cloneStack = blockState.getCloneItemStack(context.getHitResult(), level, context.getClickedPos(), player);
                     var newEntry = new RemoteControlLink(
-                            blockState.getBlock().getName(),
+                            cloneStack.isEmpty() ? blockState.getBlock().getName() : cloneStack.getHoverName(),
                             context.getClickedPos(),
                             level.dimension(),
                             context.getClickedFace()
@@ -99,13 +114,11 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                                 linkedBlocks.stream(), Stream.of(newEntry)
                         ).toList());
 
-                        if (player != null) {
-                            player.displayClientMessage(
-                                    Component.translatable("message.landsutilities.linked_remote",
-                                            newEntry.pos().toShortString(), newEntry.dimension().location().toString(),
-                                            Util.configToComponent(newEntry.face())),
-                                    false);
-                        }
+                        player.displayClientMessage(
+                                Component.translatable("message.landsutilities.linked_remote",
+                                        newEntry.pos().toShortString(), newEntry.dimension().location().toString(),
+                                        Util.configToComponent(newEntry.face())),
+                                false);
                     }
                 }
             }
@@ -119,16 +132,14 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand usedHand) {
         if (!player.isSecondaryUseActive()) {
             var stack = player.getItemInHand(usedHand);
-            var result = linked(stack).map(l -> {
+            var result = linked(stack).map(link -> {
                 if (level.isClientSide) {
                     return InteractionResultHolder.success(stack);
                 } else {
-                    var dimension = l.dimension();
-                    var targetLevel = ((ServerLevel) level).getServer().getLevel(dimension);
-                    if (targetLevel == null) {
+                    if (level.dimension() != link.dimension()) {
                         return InteractionResultHolder.fail(stack);
                     }
-                    var state = targetLevel.getBlockState(l.pos());
+                    var state = level.getBlockState(link.pos());
                     var desiredRange = new MutableFloat(1);
                     EnchantmentHelper.runIterationOnItem(stack, (enchant, enchantLevel) -> {
                         enchant.value().modifyItemFilteredCount(
@@ -141,10 +152,10 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                     });
                     try {
                         DESIRED_RANGE.set(desiredRange.doubleValue());
-                        return new InteractionResultHolder<>(state.useWithoutItem(targetLevel, player, new BlockHitResult(
-                                Vec3.atCenterOf(l.pos()).relative(l.face(), 0.5),
-                                l.face(),
-                                l.pos(),
+                        return new InteractionResultHolder<>(state.useWithoutItem(level, player, new BlockHitResult(
+                                Vec3.atCenterOf(link.pos()).relative(link.face(), 0.5),
+                                link.face(),
+                                link.pos(),
                                 false
                         )), stack);
                     } finally {

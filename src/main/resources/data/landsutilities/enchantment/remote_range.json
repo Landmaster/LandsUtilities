@@ -3,7 +3,7 @@
     "translate": "enchantment.landsutilities.remote_range"
   },
   "supported_items": ["landsutilities:remote_control"],
-  "weight": 10,
+  "weight": 5,
   "max_level": 3,
   "max_cost": {
     "base": 55,

@@ -1,5 +1,6 @@
 {
   "block.landsutilities.auto_anvil": "Auto Anvil",
+  "enchantment.landsutilities.remote_linked_blocks": "Remote Linked Blocks",
   "enchantment.landsutilities.remote_range": "Remote Control Range",
   "gui.landsutilities.config.external_tank": "XP Tank: %s",
   "gui.landsutilities.direction.down": "Down",

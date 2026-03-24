@@ -1,0 +1,32 @@
+{
+  "description": {
+    "translate": "enchantment.landsutilities.remote_linked_blocks"
+  },
+  "supported_items": ["landsutilities:remote_control"],
+  "weight": 5,
+  "max_level": 3,
+  "max_cost": {
+    "base": 30,
+    "per_level_above_first": 10
+  },
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 10
+  },
+  "anvil_cost": 2,
+  "slots": ["hand"],
+  "effects": {
+    "landsutilities:remote_linked_blocks": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 5,
+            "per_level_above_first": 5
+          }
+        }
+      }
+    ]
+  }
+}
