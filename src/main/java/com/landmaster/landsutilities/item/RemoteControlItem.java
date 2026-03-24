@@ -50,7 +50,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
         MutableFloat enchantmentBonus = new MutableFloat(0);
         EnchantmentHelper.runIterationOnItem(stack, (enchant, enchantLevel) -> {
             enchant.value().modifyItemFilteredCount(
-                    LandsUtilities.REMOTE_LINKED_BLOCKS.get(),
+                    LandsUtilities.REMOTE_CONTROL_CAPACITY.get(),
                     level,
                     enchantLevel,
                     stack,

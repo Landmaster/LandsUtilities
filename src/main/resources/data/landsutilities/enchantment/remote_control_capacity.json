@@ -1,6 +1,6 @@
 {
   "description": {
-    "translate": "enchantment.landsutilities.remote_linked_blocks"
+    "translate": "enchantment.landsutilities.remote_control_capacity"
   },
   "supported_items": ["landsutilities:remote_control"],
   "weight": 5,
@@ -16,7 +16,7 @@
   "anvil_cost": 2,
   "slots": ["hand"],
   "effects": {
-    "landsutilities:remote_linked_blocks": [
+    "landsutilities:remote_control_capacity": [
       {
         "effect": {
           "type": "minecraft:add",

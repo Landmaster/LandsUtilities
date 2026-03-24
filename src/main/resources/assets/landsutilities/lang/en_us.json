@@ -1,6 +1,6 @@
 {
   "block.landsutilities.auto_anvil": "Auto Anvil",
-  "enchantment.landsutilities.remote_linked_blocks": "Remote Linked Blocks",
+  "enchantment.landsutilities.remote_control_capacity": "Remote Control Capacity",
   "enchantment.landsutilities.remote_range": "Remote Control Range",
   "gui.landsutilities.config.external_tank": "XP Tank: %s",
   "gui.landsutilities.direction.down": "Down",
@@ -24,5 +24,6 @@
   "message.landsutilities.renamed_link": "Renamed remote control link name to %s",
   "tab.landsutilities": "Land's Utilities",
   "tooltip.landsutilities.linked_remote.amount": "%d location(s) stored",
-  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs"
+  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs",
+  "tooltip.landsutilities.auto_anvil": "Just like a vanilla anvil but runs automatically using fluid experience from any mod. Note: Do NOT pipe fluid experience directly into the anvil; instead pipe it into an adjacent tank in the configured direction (by default, above the anvil)."
 }

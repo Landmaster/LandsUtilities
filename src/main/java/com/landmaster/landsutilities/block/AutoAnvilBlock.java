@@ -3,8 +3,13 @@ package com.landmaster.landsutilities.block;
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
@@ -16,6 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
+import java.util.List;
+
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
@@ -24,6 +31,13 @@ public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
     public AutoAnvilBlock(Properties properties) {
         super(properties, LandsUtilities.AUTO_ANVIL_TE);
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
+    }
+
+    @Override
+    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltipComponents, @Nonnull TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+
+        tooltipComponents.add(Component.translatable("tooltip.landsutilities.auto_anvil").withStyle(ChatFormatting.AQUA));
     }
 
     @Override

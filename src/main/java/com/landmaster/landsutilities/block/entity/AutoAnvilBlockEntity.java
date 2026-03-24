@@ -66,7 +66,13 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     }
 
     protected AnvilMenu computeResultGenerator() {
-        var result = new AnvilMenu(0, new Inventory(FakePlayerFactory.get((ServerLevel) level, FAKE_PLAYER_PROFILE)));
+        var result = new AnvilMenu(0, new Inventory(FakePlayerFactory.get((ServerLevel) level, FAKE_PLAYER_PROFILE))) {
+            @Override
+            public void createResult() {
+                itemName = inputItems().getStackInSlot(0).getHoverName().getString();
+                super.createResult();
+            }
+        };
         result.suppressRemoteUpdates();
         return result;
     }
