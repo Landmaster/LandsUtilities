@@ -19,6 +19,7 @@
   "item.landsutilities.remote_control.current": "Remote Control (current target: #%d %s)",
   "landing_text.landsutilities.landsutilities_guide": "A guide on the various contraptions that Land's Utilities offers",
   "landsutilities.configuration.maxLinkedBlocks": "Remote Maximum Linked Blocks",
+  "landsutilities.configuration.remoteControlBlacklist": "Remote Control Blacklist",
   "message.landsutilities.empty_remote_control": "Remote control has no linked blocks!",
   "message.landsutilities.linked_remote": "Added to remote: %s %s %s",
   "message.landsutilities.not_remote_control": "No remote control in either hand!",

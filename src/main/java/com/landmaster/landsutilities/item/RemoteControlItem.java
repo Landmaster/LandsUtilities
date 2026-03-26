@@ -7,6 +7,7 @@ import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -102,23 +103,25 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                 var linkedBlocks = stack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
                 if (linkedBlocks.size() < getMaxLinkedBlocks(stack, (ServerLevel) level)) {
                     var blockState = level.getBlockState(context.getClickedPos());
-                    var cloneStack = blockState.getCloneItemStack(context.getHitResult(), level, context.getClickedPos(), player);
-                    var newEntry = new RemoteControlLink(
-                            cloneStack.isEmpty() ? blockState.getBlock().getName() : cloneStack.getHoverName(),
-                            context.getClickedPos(),
-                            level.dimension(),
-                            context.getClickedFace()
-                    );
-                    if (!linkedBlocks.contains(newEntry)) {
-                        stack.set(LandsUtilities.LINKED_MENU_BLOCKS, Streams.concat(
-                                linkedBlocks.stream(), Stream.of(newEntry)
-                        ).toList());
+                    if (!Config.isRemoteBlacklisted(blockState.getBlock())) {
+                        var cloneStack = blockState.getCloneItemStack(context.getHitResult(), level, context.getClickedPos(), player);
+                        var newEntry = new RemoteControlLink(
+                                cloneStack.isEmpty() ? blockState.getBlock().getName() : cloneStack.getHoverName(),
+                                context.getClickedPos(),
+                                level.dimension(),
+                                context.getClickedFace()
+                        );
+                        if (!linkedBlocks.contains(newEntry)) {
+                            stack.set(LandsUtilities.LINKED_MENU_BLOCKS, Streams.concat(
+                                    linkedBlocks.stream(), Stream.of(newEntry)
+                            ).toList());
 
-                        player.displayClientMessage(
-                                Component.translatable("message.landsutilities.linked_remote",
-                                        newEntry.pos().toShortString(), newEntry.dimension().location().toString(),
-                                        Util.configToComponent(newEntry.face())),
-                                false);
+                            player.displayClientMessage(
+                                    Component.translatable("message.landsutilities.linked_remote",
+                                            newEntry.pos().toShortString(), newEntry.dimension().location().toString(),
+                                            Util.configToComponent(newEntry.face())),
+                                    false);
+                        }
                     }
                 }
             }
@@ -140,6 +143,9 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                         return InteractionResultHolder.fail(stack);
                     }
                     var state = level.getBlockState(link.pos());
+                    if (Config.isRemoteBlacklisted(state.getBlock())) {
+                        return InteractionResultHolder.fail(stack);
+                    }
                     var desiredRange = new MutableFloat(1);
                     EnchantmentHelper.runIterationOnItem(stack, (enchant, enchantLevel) -> {
                         enchant.value().modifyItemFilteredCount(
