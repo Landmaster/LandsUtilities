@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -23,6 +24,8 @@ import javax.annotation.Nonnull;
 
 import java.util.List;
 
+import net.minecraft.world.Containers;
+
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
@@ -31,6 +34,23 @@ public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
     public AutoAnvilBlock(Properties properties) {
         super(properties, LandsUtilities.AUTO_ANVIL_TE);
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            var blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof AutoAnvilBlockEntity autoAnvil) {
+                var handler = autoAnvil.automationItemHandler();
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    var stack = handler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+                    }
+                }
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override

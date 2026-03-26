@@ -20,6 +20,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         simpleBlockItem(LandsUtilities.AUTO_ANVIL.get());
 
         basicItem(LandsUtilities.REMOTE_CONTROL.get());
+        handheldItem(LandsUtilities.REDSTONE_WAND.get());
     }
 
     @SubscribeEvent

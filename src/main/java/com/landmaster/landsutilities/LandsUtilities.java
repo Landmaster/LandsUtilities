@@ -4,12 +4,16 @@ import com.landmaster.landsutilities.block.AutoAnvilBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
+import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
 import com.landmaster.landsutilities.network.*;
 import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -30,6 +34,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -38,6 +43,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -66,12 +72,17 @@ public class LandsUtilities {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MODID);
     public static final DeferredRegister.DataComponents ENCHANTMENT_COMPONENT_TYPES =
             DeferredRegister.createDataComponents(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, MODID);
+    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
+            NeoForgeRegistries.ATTACHMENT_TYPES, MODID
+    );
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             BlockBehaviour.Properties.of().noOcclusion());
     public static final DeferredItem<BlockItem> AUTO_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(AUTO_ANVIL);
 
     public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
+            new Item.Properties().stacksTo(1));
+    public static final DeferredItem<RedstoneWandItem> REDSTONE_WAND = ITEMS.registerItem("redstone_wand", RedstoneWandItem::new,
             new Item.Properties().stacksTo(1));
 
     public static final Supplier<BlockEntityType<AutoAnvilBlockEntity>> AUTO_ANVIL_TE = BLOCK_ENTITIES.register("auto_anvil",
@@ -87,6 +98,7 @@ public class LandsUtilities {
                     .displayItems((params, out) -> {
                         out.accept(AUTO_ANVIL);
                         out.accept(REMOTE_CONTROL);
+                        out.accept(REDSTONE_WAND);
                     })
                     .build());
 
@@ -99,6 +111,12 @@ public class LandsUtilities {
             "linked_menu_block", builder -> builder
                     .persistent(Codec.INT)
                     .networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+    public static final Supplier<AttachmentType<LongSet>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
+            "redstone_wand_on_blocks", () -> AttachmentType.<LongSet>builder(() -> new LongOpenHashSet())
+                    .serialize(Codec.LONG_STREAM.xmap(LongOpenHashSet::toSet, LongCollection::longStream))
+                    .sync(ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.collection(LongOpenHashSet::new)))
+                    .build()
     );
 
     public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> REMOTE_RANGE = ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
@@ -117,6 +135,7 @@ public class LandsUtilities {
         CREATIVE_TABS.register(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         ENCHANTMENT_COMPONENT_TYPES.register(modEventBus);
+        ATTACHMENT_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

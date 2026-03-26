@@ -1,0 +1,15 @@
+{
+  "name": "Redstone Wand",
+  "icon": "landsutilities:redstone_wand",
+  "category": "landsutilities:utilities",
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "landsutilities:redstone_wand"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The Redstone Wand can be used to force a block at a selected position to be redstone powered (like a redstone block). Shift-right-click to toggle a block between on and off. Useful for testing out machine redstone control."
+    }
+  ]
+}

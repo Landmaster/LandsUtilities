@@ -4,6 +4,7 @@
   "package": "com.landmaster.landsutilities.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockStateBaseMixin",
     "ContainerOpenersCounterMixin",
     "PlayerMixin",
     "ServerPlayerMixin"

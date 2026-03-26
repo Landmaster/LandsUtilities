@@ -53,6 +53,17 @@ public class ModRecipeProvider extends RecipeProvider {
                 .requires(LandsUtilities.REMOTE_CONTROL)
                 .unlockedBy("has_remote_control", has(LandsUtilities.REMOTE_CONTROL))
                 .save(output, Util.loc("remote_control_reset"));
+
+        ShapedRecipeBuilder.shaped(
+                RecipeCategory.REDSTONE, LandsUtilities.REDSTONE_WAND
+        )
+                .define('c', Tags.Items.OBSIDIANS_CRYING)
+                .define('r', Tags.Items.DUSTS_REDSTONE)
+                .pattern("  r")
+                .pattern(" c ")
+                .pattern("c  ")
+                .unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE))
+                .save(output);
     }
 
     @SubscribeEvent
