@@ -14,7 +14,7 @@
   "gui.landsutilities.redstone.ignore": "Ignore Redstone",
   "gui.landsutilities.redstone.low": "Active on Redstone Low",
   "item.landsutilities.landsutilities_guide": "Land's Utilities Guide",
-  "item.landsutilities.redstone_wand": "Redstone Wand",
+  "item.landsutilities.redstone_wand": "Redstone Wand (mode: %s)",
   "item.landsutilities.remote_control": "Remote Control",
   "item.landsutilities.remote_control.current": "Remote Control (current target: #%d %s)",
   "landing_text.landsutilities.landsutilities_guide": "A guide on the various contraptions that Land's Utilities offers",
@@ -23,12 +23,16 @@
   "message.landsutilities.empty_remote_control": "Remote control has no linked blocks!",
   "message.landsutilities.linked_remote": "Added to remote: %s %s %s",
   "message.landsutilities.not_remote_control": "No remote control in either hand!",
-  "message.landsutilities.redstone_wand.added": "Block at %s is now force redstone powered",
-  "message.landsutilities.redstone_wand.removed": "Block at %s is no longer force redstone powered",
+  "message.landsutilities.redstone_wand.added": "Block at %s is now under special redstone handling: %s",
+  "message.landsutilities.redstone_wand.removed": "Block at %s is no longer under special redstone handling",
   "message.landsutilities.removed_link": "Removed block from remote control: %s",
   "message.landsutilities.renamed_link": "Renamed remote control link name to %s",
   "tab.landsutilities": "Land's Utilities",
   "tooltip.landsutilities.auto_anvil": "Just like a vanilla anvil but runs automatically using fluid experience from any mod. Note: Do NOT pipe fluid experience directly into the anvil; instead pipe it into an adjacent tank in the configured direction (by default, above the anvil).",
   "tooltip.landsutilities.linked_remote.amount": "%d location(s) stored",
-  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs"
+  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs",
+  "tooltip.landsutilities.redstone_wand.type.always_on": "Always-On",
+  "tooltip.landsutilities.redstone_wand.type.lever": "Lever",
+  "tooltip.landsutilities.redstone_wand.type.button": "Button",
+  "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button"
 }

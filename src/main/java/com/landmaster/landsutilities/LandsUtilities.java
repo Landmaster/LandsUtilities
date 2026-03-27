@@ -8,12 +8,12 @@ import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
 import com.landmaster.landsutilities.network.*;
+import com.landmaster.landsutilities.util.RedstoneWandState;
 import com.landmaster.landsutilities.util.RemoteControlLink;
+import com.landmaster.landsutilities.util.Util;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -76,6 +76,23 @@ public class LandsUtilities {
             NeoForgeRegistries.ATTACHMENT_TYPES, MODID
     );
 
+
+    public static final Supplier<DataComponentType<List<RemoteControlLink>>> LINKED_MENU_BLOCKS = DATA_COMPONENTS.registerComponentType(
+            "linked_menu_blocks", builder -> builder
+                    .persistent(RemoteControlLink.CODEC.listOf())
+                    .networkSynchronized(RemoteControlLink.STREAM_CODEC.apply(ByteBufCodecs.list()))
+    );
+    public static final Supplier<DataComponentType<Integer>> LINKED_MENU_INDEX = DATA_COMPONENTS.registerComponentType(
+            "linked_menu_block", builder -> builder
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+    public static final Supplier<DataComponentType<RedstoneWandState.Type>> REDSTONE_WAND_MODE = DATA_COMPONENTS.registerComponentType(
+            "redstone_wand_mode", builder -> builder
+                    .persistent(RedstoneWandState.Type.CODEC)
+                    .networkSynchronized(RedstoneWandState.Type.STREAM_CODEC)
+    );
+
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             BlockBehaviour.Properties.of().noOcclusion());
     public static final DeferredItem<BlockItem> AUTO_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(AUTO_ANVIL);
@@ -102,20 +119,10 @@ public class LandsUtilities {
                     })
                     .build());
 
-    public static final Supplier<DataComponentType<List<RemoteControlLink>>> LINKED_MENU_BLOCKS = DATA_COMPONENTS.registerComponentType(
-            "linked_menu_blocks", builder -> builder
-                    .persistent(RemoteControlLink.CODEC.listOf())
-                    .networkSynchronized(RemoteControlLink.STREAM_CODEC.apply(ByteBufCodecs.list()))
-    );
-    public static final Supplier<DataComponentType<Integer>> LINKED_MENU_INDEX = DATA_COMPONENTS.registerComponentType(
-            "linked_menu_block", builder -> builder
-                    .persistent(Codec.INT)
-                    .networkSynchronized(ByteBufCodecs.VAR_INT)
-    );
-    public static final Supplier<AttachmentType<LongSet>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
-            "redstone_wand_on_blocks", () -> AttachmentType.<LongSet>builder(() -> new LongOpenHashSet())
-                    .serialize(Codec.LONG_STREAM.xmap(LongOpenHashSet::toSet, LongCollection::longStream))
-                    .sync(ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.collection(LongOpenHashSet::new)))
+    public static final Supplier<AttachmentType<Long2ObjectMap<RedstoneWandState>>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
+            "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
+                    .serialize(Codec.withAlternative(Util.WAND_STATES_CODEC, Util.WAND_STATES_OLD_CODEC))
+                    .sync(Util.WAND_STATES_STREAM_CODEC)
                     .build()
     );
 

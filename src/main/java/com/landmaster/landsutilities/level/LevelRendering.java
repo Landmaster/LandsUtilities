@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -32,11 +33,13 @@ public class LevelRendering {
                 for (int i = -2; i <= 2; ++i) {
                     for (int j = -2; j <= 2; ++j) {
                         var chunk = level.getChunk(originChunkPos.x + i, originChunkPos.z + j);
-                        chunk.getData(LandsUtilities.REDSTONE_WAND_ON_BLOCKS).forEach(pos -> {
+                        chunk.getData(LandsUtilities.REDSTONE_WAND_ON_BLOCKS).forEach((pos, val) -> {
+                            var color = val.type().getColor();
                             cursor.set(pos);
                             renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
                                     cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
-                                    1.0f, 0.0f, 0.0f, 1.0f);
+                                    FastColor.ARGB32.red(color) / 256.0f, FastColor.ARGB32.green(color) / 256.0f,
+                                    FastColor.ARGB32.blue(color) / 256.0f, FastColor.ARGB32.alpha(color) / 256.0f);
                         });
                     }
                 }
