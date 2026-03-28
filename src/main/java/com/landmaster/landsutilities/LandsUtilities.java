@@ -19,12 +19,19 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -34,13 +41,13 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -72,6 +79,8 @@ public class LandsUtilities {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
             NeoForgeRegistries.ATTACHMENT_TYPES, MODID
     );
+    public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(NeoForgeRegistries.FLUID_TYPES, MODID);
+    public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, MODID);
 
 
     public static final Supplier<DataComponentType<List<RemoteControlLink>>> LINKED_MENU_BLOCKS = DATA_COMPONENTS.registerComponentType(
@@ -105,17 +114,6 @@ public class LandsUtilities {
     public static final Supplier<MenuType<AutoAnvilMenu>> AUTO_ANVIL_MENU = MENU_TYPES.register("auto_anvil",
             () -> IMenuTypeExtension.create(AutoAnvilMenu::new));
 
-    public static final Supplier<CreativeModeTab> TAB = CREATIVE_TABS.register("landsutilities", () ->
-            CreativeModeTab.builder()
-                    .icon(AUTO_ANVIL::toStack)
-                    .title(Component.translatable("tab.landsutilities"))
-                    .displayItems((params, out) -> {
-                        out.accept(AUTO_ANVIL);
-                        out.accept(REMOTE_CONTROL);
-                        out.accept(REDSTONE_WAND);
-                    })
-                    .build());
-
     public static final Supplier<AttachmentType<Long2ObjectMap<RedstoneWandState>>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
                     .serialize(Codec.withAlternative(Util.WAND_STATES_CODEC, Util.WAND_STATES_OLD_CODEC).fieldOf("redstone_wand_on_blocks"))
@@ -131,7 +129,57 @@ public class LandsUtilities {
             "remote_control_capacity", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC).listOf())
     );
 
+    public static final DeferredHolder<FluidType, FluidType> FLUID_XP_TYPE = FLUID_TYPES.register("fluid_xp", () -> new FluidType(FluidType.Properties.create()
+            .temperature(300)
+            .lightLevel(10)
+            .viscosity(1500)
+            .density(800)
+            .canConvertToSource(false)
+            .canDrown(false)
+            .canSwim(true)
+            .descriptionId("block.landsutilities.fluid_xp")
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.EXPERIENCE_ORB_PICKUP)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.PLAYER_LEVELUP))
+    {
+
+    });
+
+    private static BaseFlowingFluid.Properties fluidXpProperties;
+    public static final Supplier<FlowingFluid> FLUID_XP_STILL = FLUIDS.register("fluid_xp", () -> new BaseFlowingFluid.Source(fluidXpProperties));
+    public static final Supplier<FlowingFluid> FLUID_XP_FLOWING = FLUIDS.register("fluid_xp_flowing", () -> new BaseFlowingFluid.Flowing(fluidXpProperties));
+
+    public static final DeferredBlock<LiquidBlock> FLUID_XP_BLOCK = BLOCKS.registerBlock(
+            "fluid_xp",
+            props -> new LiquidBlock(FLUID_XP_STILL.get(), props),
+            props -> props.liquid().noCollision().replaceable().strength(100.0f).pushReaction(PushReaction.DESTROY).noLootTable()
+    );
+    public static final DeferredItem<BucketItem> FLUID_XP_BUCKET = ITEMS.registerItem(
+            "fluid_xp_bucket",
+            props -> new BucketItem(FLUID_XP_STILL.get(), props),
+            props -> props.craftRemainder(Items.BUCKET).stacksTo(1)
+    );
+
+    static {
+        fluidXpProperties = new BaseFlowingFluid.Properties(FLUID_XP_TYPE, FLUID_XP_STILL, FLUID_XP_FLOWING)
+                .block(FLUID_XP_BLOCK);
+    }
+
+
+    public static final Supplier<CreativeModeTab> TAB = CREATIVE_TABS.register("landsutilities", () ->
+            CreativeModeTab.builder()
+                    .icon(AUTO_ANVIL::toStack)
+                    .title(Component.translatable("tab.landsutilities"))
+                    .displayItems((params, out) -> {
+                        out.accept(AUTO_ANVIL);
+                        out.accept(REMOTE_CONTROL);
+                        out.accept(REDSTONE_WAND);
+                        out.accept(FLUID_XP_BUCKET);
+                    })
+                    .build());
+
     public LandsUtilities(IEventBus modEventBus, ModContainer modContainer) {
+        FLUID_TYPES.register(modEventBus);
+        FLUIDS.register(modEventBus);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);

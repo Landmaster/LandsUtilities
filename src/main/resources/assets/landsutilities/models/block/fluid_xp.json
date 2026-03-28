@@ -1,0 +1,7 @@
+{
+  "render_type": "translucent",
+  "textures": {
+    "particle": "landsutilties:block/fluid_xp"
+  }
+}
+

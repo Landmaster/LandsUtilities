@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "landsutilities:item/fluid_xp_bucket"
+  }
+}
