@@ -29,9 +29,9 @@ public record IOConfigPacket(BlockPos pos, String key, Optional<Direction> direc
     public void handle(IPayloadContext ctx) {
         var level = ctx.player().level();
         if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof BaseBlockEntity te) {
-            if (te.setConfiguration(key, direction.orElse(null)) && !level.isClientSide) {
+            if (te.setConfiguration(key, direction.orElse(null)) && !level.isClientSide()) {
                 te.setChanged();
-                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), this);
+                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, ChunkPos.containing(pos), this);
             }
         }
     }

@@ -3,16 +3,17 @@ package com.landmaster.landsutilities.menu;
 import com.landmaster.landsutilities.menu.widget.IOConfigButton;
 import com.landmaster.landsutilities.menu.widget.RedstoneConfigButton;
 import com.landmaster.landsutilities.util.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
 public class AutoAnvilScreen extends AbstractContainerScreen<AutoAnvilMenu> {
-    private static final ResourceLocation BACKGROUND = Util.loc("textures/gui/auto_anvil.png");
+    private static final Identifier BACKGROUND = Util.loc("textures/gui/auto_anvil.png");
 
     public AutoAnvilScreen(AutoAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -26,13 +27,8 @@ public class AutoAnvilScreen extends AbstractContainerScreen<AutoAnvilMenu> {
     }
 
     @Override
-    public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderBg(@Nonnull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
+    public void extractBackground(@Nonnull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, this.leftPos, this.topPos, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
     }
 }

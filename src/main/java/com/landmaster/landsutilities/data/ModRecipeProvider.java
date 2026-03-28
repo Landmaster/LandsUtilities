@@ -1,9 +1,7 @@
 package com.landmaster.landsutilities.data;
 
 import com.landmaster.landsutilities.LandsUtilities;
-import com.landmaster.landsutilities.util.Util;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.tags.ItemTags;
@@ -18,13 +16,14 @@ import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class ModRecipeProvider extends RecipeProvider {
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+
+    protected ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(@Nonnull RecipeOutput output) {
-        ShapedRecipeBuilder.shaped(
+    protected void buildRecipes() {
+        shaped(
                 RecipeCategory.MISC, LandsUtilities.AUTO_ANVIL
         )
                 .define('a', Items.ANVIL)
@@ -37,7 +36,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_anvil", has(Items.ANVIL))
                 .save(output);
 
-        ShapedRecipeBuilder.shaped(
+        shaped(
                 RecipeCategory.MISC, LandsUtilities.REMOTE_CONTROL
         )
                 .define('e', Items.ENDER_EYE)
@@ -49,12 +48,12 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_ender_eye", has(Items.ENDER_EYE))
                 .save(output);
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, LandsUtilities.REMOTE_CONTROL)
+        shapeless(RecipeCategory.MISC, LandsUtilities.REMOTE_CONTROL)
                 .requires(LandsUtilities.REMOTE_CONTROL)
                 .unlockedBy("has_remote_control", has(LandsUtilities.REMOTE_CONTROL))
-                .save(output, Util.loc("remote_control_reset"));
+                .save(output, "remote_control_reset");
 
-        ShapedRecipeBuilder.shaped(
+        shaped(
                 RecipeCategory.REDSTONE, LandsUtilities.REDSTONE_WAND
         )
                 .define('c', Tags.Items.OBSIDIANS_CRYING)
@@ -66,15 +65,28 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output);
     }
 
-    @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput output = generator.getPackOutput();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+    // The runner to add to the data generator
+    public static class Runner extends RecipeProvider.Runner {
+        // Get the parameters from the `GatherDataEvent`s.
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, lookupProvider);
+        }
 
-        generator.addProvider(
-                event.includeServer(),
-                new ModRecipeProvider(output, lookupProvider)
-        );
+        @Override
+        @Nonnull
+        protected RecipeProvider createRecipeProvider(@Nonnull HolderLookup.Provider provider, @Nonnull RecipeOutput output) {
+            return new ModRecipeProvider(provider, output);
+        }
+
+        @Override
+        @Nonnull
+        public String getName() {
+            return "Land's Utilities Recipes";
+        }
+    }
+
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent.Server event) {
+        event.createProvider(Runner::new);
     }
 }

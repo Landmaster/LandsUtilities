@@ -4,30 +4,34 @@ import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
 import com.landmaster.landsutilities.util.Util;
 import com.mojang.authlib.GameProfile;
-import com.mojang.serialization.Codec;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerEquipment;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -45,13 +49,17 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     @Getter(lazy = true)
     private final AnvilMenu resultGenerator = computeResultGenerator();
     @Getter(lazy = true)
-    private final IItemHandlerModifiable inputItems = computeInputItems();
+    private final ResourceHandler<ItemResource> inputItems = computeInputItems();
     @Getter
-    private final IItemHandlerModifiable resultHandler = new ItemStackHandler(1);
+    private final ItemStacksResourceHandler resultHandler = new ItemStacksResourceHandler(1) {
+        @Override
+        protected void onContentsChanged(int index, ItemStack previousContents) {
+            super.onContentsChanged(index, previousContents);
+            setChanged();
+        }
+    };
     @Getter(lazy = true)
-    private final IItemHandlerModifiable guiItemHandler = computeItemHandler(false);
-    @Getter(lazy = true)
-    private final IItemHandlerModifiable automationItemHandler = computeItemHandler(true);
+    private final ResourceHandler<ItemResource> automationItemHandler = computeItemHandler();
 
     public static final Map<String, Optional<Direction>> INITIAL_IO_CONFIG = Map.of(
             "external_tank", Optional.of(Direction.UP)
@@ -61,62 +69,70 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
         super(LandsUtilities.AUTO_ANVIL_TE.get(), pos, blockState, INITIAL_IO_CONFIG);
     }
 
-    protected IItemHandlerModifiable computeInputItems() {
-        return level != null && level.isClientSide ? new ItemStackHandler(2) : new InvWrapper(resultGenerator().inputSlots);
+    protected ResourceHandler<ItemResource> computeInputItems() {
+        return level != null && level.isClientSide() ? new ItemStacksResourceHandler(2) {
+            @Override
+            protected void onContentsChanged(int index, ItemStack previousContents) {
+                super.onContentsChanged(index, previousContents);
+                setChanged();
+            }
+        } : VanillaContainerWrapper.of(resultGenerator().inputSlots);
     }
 
     protected AnvilMenu computeResultGenerator() {
-        var result = new AnvilMenu(0, new Inventory(FakePlayerFactory.get((ServerLevel) level, FAKE_PLAYER_PROFILE))) {
+        var player = FakePlayerFactory.get((ServerLevel) level, FAKE_PLAYER_PROFILE);
+        var result = new AnvilMenu(0, new Inventory(player, new PlayerEquipment(player))) {
             @Override
-            public void createResult() {
-                itemName = inputItems().getStackInSlot(0).getHoverName().getString();
-                super.createResult();
+            public void createResultInternal() {
+                itemName = inputSlots.getItem(0).getHoverName().getString();
+                super.createResultInternal();
+            }
+
+            @Override
+            public void slotsChanged(@Nonnull Container container) {
+                super.slotsChanged(container);
+                setChanged();
             }
         };
         result.suppressRemoteUpdates();
-        return result;
-    }
-
-    protected Optional<IFluidHandler> externalTankHandler() {
-        return getConfiguration("external_tank").map(dir ->
-                level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition.relative(dir), dir.getOpposite()));
-    }
-
-    private IItemHandlerModifiable computeItemHandler(boolean automation) {
-        var result = new CombinedInvWrapper(inputItems(), resultHandler) {
-            @Nonnull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (automation && slot < inputItems().getSlots()) {
-                    return ItemStack.EMPTY;
-                }
-                return super.extractItem(slot, amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-                return slot < inputItems().getSlots() && super.isItemValid(slot, stack);
-            }
-        };
         if (loadedItems != null) {
-            for (int i=0; i<Math.min(loadedItems.size(), 3); ++i) {
-                result.setStackInSlot(i, loadedItems.get(i));
-            }
+            Util.initFromList(result.inputSlots, loadedItems);
             loadedItems = null;
         }
         return result;
     }
 
-    protected boolean tryExtractLiquidXP(int amount, boolean simulate) {
+    public Slot getInputSlot(int index, int x, int y) {
+        if (level.isClientSide()) {
+            var handler = (ItemStacksResourceHandler) inputItems();
+            return new ResourceHandlerSlot(handler, handler::set, index, x, y);
+        }
+        return new Slot(resultGenerator().inputSlots, index, x, y);
+    }
+
+    protected Optional<ResourceHandler<FluidResource>> externalTankHandler() {
+        return getConfiguration("external_tank").map(dir ->
+                level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.relative(dir), dir.getOpposite()));
+    }
+
+    private ResourceHandler<ItemResource> computeItemHandler() {
+        return new CombinedResourceHandler<>(inputItems(), resultHandler) {
+            @Override
+            public boolean isValid(int index, ItemResource resource) {
+                return index < inputItems().size();
+            }
+        };
+    }
+
+    protected boolean tryExtractLiquidXP(int amount, Transaction parentTxn) {
         return externalTankHandler().map(cap -> {
-            for (var fluidHolder: BuiltInRegistries.FLUID.getOrCreateTag(Util.XP)) {
-                var desiredStack = new FluidStack(fluidHolder.value(), amount);
-                var drained = cap.drain(desiredStack, IFluidHandler.FluidAction.SIMULATE);
-                if (drained.getAmount() >= amount) {
-                    if (!simulate) {
-                        cap.drain(desiredStack, IFluidHandler.FluidAction.EXECUTE);
+            var fluids = level.registryAccess().lookupOrThrow(Registries.FLUID).getOrThrow(Util.XP);
+            for (var fluidHolder: fluids) {
+                try (var txn = Transaction.open(parentTxn)) {
+                    if (cap.extract(FluidResource.of(fluidHolder.value()), amount, txn) >= amount) {
+                        txn.commit();
+                        return true;
                     }
-                    return true;
                 }
             }
             return false;
@@ -143,37 +159,34 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
             var resultHandler = resultHandler();
             int requiredXP = Math.clamp(Util.levelToFluidXp(resultGenerator.getCost()), 0, Integer.MAX_VALUE);
             var resultItem = resultGenerator.resultSlots.getItem(0);
-            if (!resultItem.isEmpty()
-                    && resultHandler.insertItem(0, resultItem, true).isEmpty()
-                    && tryExtractLiquidXP(requiredXP, true)) {
-                resultHandler.insertItem(0, resultItem, false);
-                tryExtractLiquidXP(requiredXP, false);
-                resultGenerator.resultSlots.setItem(0, ItemStack.EMPTY);
-                try {
-                    ON_TAKE.invoke(resultGenerator, resultGenerator.player, resultItem);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
+            try (var txn = Transaction.openRoot()) {
+                if (!resultItem.isEmpty()
+                        && resultHandler.insert(ItemResource.of(resultItem), resultItem.count(), txn) >= resultItem.count()
+                        && tryExtractLiquidXP(requiredXP, txn)) {
+                    txn.commit();
+                    resultGenerator.resultSlots.setItem(0, ItemStack.EMPTY);
+                    try {
+                        ON_TAKE.invoke(resultGenerator, resultGenerator.player, resultItem);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
     }
 
-    private final Codec<List<ItemStack>> INVENTORY_CODEC = ItemStack.OPTIONAL_CODEC.listOf(3, 3);
-
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        loadedItems = INVENTORY_CODEC.parse(registryOps(registries), tag.get("items")).getOrThrow();
+    protected void loadAdditional(@Nonnull ValueInput input) {
+        super.loadAdditional(input);
+        loadedItems = input.read("inputItems", ItemStack.OPTIONAL_CODEC.listOf()).get();
+        input.readChild("resultItem", resultHandler);
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        var items = new ItemStack[automationItemHandler().getSlots()];
-        for (int i=0; i<items.length; ++i) {
-            items[i] = automationItemHandler().getStackInSlot(i);
-        }
-        tag.put("items", INVENTORY_CODEC.encodeStart(registryOps(registries), Arrays.asList(items)).getOrThrow());
+    protected void saveAdditional(@Nonnull ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("inputItems", ItemStack.OPTIONAL_CODEC.listOf(), Arrays.asList(Util.toArray(resultGenerator().inputSlots)));
+        output.putChild("resultItem", resultHandler);
     }
 
     @Nonnull

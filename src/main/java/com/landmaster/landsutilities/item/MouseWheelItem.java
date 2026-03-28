@@ -9,6 +9,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public interface MouseWheelItem {
@@ -26,7 +27,7 @@ public interface MouseWheelItem {
             if (player.isSecondaryUseActive()) {
                 if (player.getMainHandItem().getItem() instanceof MouseWheelItem
                     || player.getOffhandItem().getItem() instanceof MouseWheelItem) {
-                    PacketDistributor.sendToServer(new MouseWheelPacket(event.getScrollDeltaY() > 0));
+                    ClientPacketDistributor.sendToServer(new MouseWheelPacket(event.getScrollDeltaY() > 0));
                     event.setCanceled(true);
                 }
             }

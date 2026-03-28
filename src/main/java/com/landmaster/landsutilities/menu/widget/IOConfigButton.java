@@ -3,11 +3,10 @@ package com.landmaster.landsutilities.menu.widget;
 import com.landmaster.landsutilities.block.entity.BaseBlockEntity;
 import com.landmaster.landsutilities.network.IOConfigPacket;
 import com.landmaster.landsutilities.util.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
-
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import javax.annotation.Nonnull;
 
 public class IOConfigButton extends Button {
@@ -20,18 +19,19 @@ public class IOConfigButton extends Button {
                 return;
             }
             var newConfig = Util.cycleConfiguration(blockEntity.getConfiguration(key).orElse(null), allowNone);
-            PacketDistributor.sendToServer(new IOConfigPacket(blockEntity.getBlockPos(), key, newConfig));
+            ClientPacketDistributor.sendToServer(new IOConfigPacket(blockEntity.getBlockPos(), key, newConfig));
         }, DEFAULT_NARRATION);
         this.key = key;
         this.blockEntity = blockEntity;
     }
 
     @Override
-    protected void renderWidget(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(@Nonnull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (blockEntity != null) {
             setMessage(Component.translatable("gui.landsutilities.config." + key,
                     Util.configToComponent(blockEntity.getConfiguration(key).orElse(null))));
         }
-        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        this.extractDefaultSprite(graphics);
+        this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
     }
 }

@@ -33,7 +33,7 @@ public abstract class FunctionalBlock<T extends BaseBlockEntity> extends BaseEnt
 
     @Override
     public @Nullable <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> blockEntityType) {
-        if (blockEntityType == this.blockEntityType.get() && !level.isClientSide) {
+        if (blockEntityType == this.blockEntityType.get() && !level.isClientSide()) {
             return (level_, pos, state_, tile) -> ((BaseBlockEntity) tile).tick();
         }
         return null;
@@ -44,7 +44,7 @@ public abstract class FunctionalBlock<T extends BaseBlockEntity> extends BaseEnt
     protected InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult hitResult) {
         var te = level.getBlockEntity(pos);
         if (te instanceof MenuProvider provider && te instanceof BaseBlockEntity) {
-            if (level.isClientSide) {
+            if (level.isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
             player.openMenu(provider, pos);

@@ -13,13 +13,12 @@ import java.util.Set;
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RegisterLootTables {
     @SubscribeEvent
-    private static void gatherData(GatherDataEvent event) {
-        var generator = event.getGenerator();
-        generator.addProvider(event.includeServer(), new LootTableProvider(
-                generator.getPackOutput(),
+    private static void gatherData(GatherDataEvent.Server event) {
+        event.createProvider((output, lookupProvider) -> new LootTableProvider(
+                output,
                 Set.of(),
                 List.of(new LootTableProvider.SubProviderEntry(ModBlockLootSubProvider::new, LootContextParamSets.BLOCK)),
-                event.getLookupProvider()
+                lookupProvider
         ));
     }
 }

@@ -1,7 +1,7 @@
 package com.landmaster.landsutilities;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,7 +26,7 @@ public class Config {
                     List.of("remoteControlBlacklist"),
                     List::of,
                     () -> "",
-                    str -> BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse(Objects.toString(str))),
+                    str -> BuiltInRegistries.BLOCK.containsKey(Identifier.parse(Objects.toString(str))),
                     null
             );
 

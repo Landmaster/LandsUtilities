@@ -12,9 +12,16 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,17 +60,17 @@ public abstract class BaseBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        ioConfiguration = new HashMap<>(IO_CONFIGURATION_CODEC.parse(NbtOps.INSTANCE, tag.getCompound("ioConfiguration")).getOrThrow());
-        redstoneConfig = RedstoneConfig.CODEC.parse(NbtOps.INSTANCE, tag.get("redstoneConfig")).result().orElse(RedstoneConfig.IGNORE);
+    protected void loadAdditional(@Nonnull ValueInput input) {
+        super.loadAdditional(input);
+        ioConfiguration = input.read("ioConfiguration", IO_CONFIGURATION_CODEC).get();
+        redstoneConfig = input.read("redstoneConfig", RedstoneConfig.CODEC).orElse(RedstoneConfig.IGNORE);
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put("ioConfiguration", IO_CONFIGURATION_CODEC.encodeStart(NbtOps.INSTANCE, ioConfiguration).getOrThrow());
-        tag.put("redstoneConfig", RedstoneConfig.CODEC.encodeStart(NbtOps.INSTANCE, redstoneConfig).getOrThrow());
+    protected void saveAdditional(@Nonnull ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("ioConfiguration", IO_CONFIGURATION_CODEC, ioConfiguration);
+        output.store("redstoneConfig", RedstoneConfig.CODEC, redstoneConfig);
     }
 
     protected static RegistryOps<Tag> registryOps(HolderLookup.Provider registries) {
@@ -73,9 +80,12 @@ public abstract class BaseBlockEntity extends BlockEntity {
     @Nonnull
     @Override
     public CompoundTag getUpdateTag(@Nonnull HolderLookup.Provider registries) {
-        var tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(
+                ProblemReporter.DISCARDING, // Choose to discard all errors
+                registries
+        );
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     public void tick() {
@@ -87,6 +97,17 @@ public abstract class BaseBlockEntity extends BlockEntity {
             case HIGH:
                 active = level.hasNeighborSignal(worldPosition) == (redstoneConfig == RedstoneConfig.HIGH);
                 break;
+        }
+    }
+
+    @Override
+    public void preRemoveSideEffects(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        var cap = level.getCapability(Capabilities.Item.BLOCK, pos, state, this, null);
+        if (cap != null) {
+            for (int i=0; i<cap.size(); ++i) {
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), cap.getResource(i).toStack(cap.getAmountAsInt(i)));
+            }
         }
     }
 }

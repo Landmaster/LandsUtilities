@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +21,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RedstoneWandItem extends Item implements MouseWheelItem {
@@ -27,17 +29,17 @@ public class RedstoneWandItem extends Item implements MouseWheelItem {
         super(properties);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltipComponents, @Nonnull TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.landsutilities.redstone_wand").withStyle(ChatFormatting.AQUA));
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull Item.TooltipContext context, @Nonnull TooltipDisplay display, @Nonnull Consumer<Component> builder, @Nonnull TooltipFlag tooltipFlag) {
+        builder.accept(Component.translatable("tooltip.landsutilities.redstone_wand").withStyle(ChatFormatting.AQUA));
     }
 
     @Nonnull
     @Override
     public Component getName(@Nonnull ItemStack stack) {
         return Component.translatable(
-                this.getDescriptionId(stack),
+                "item.landsutilities.redstone_wand",
                 stack.getOrDefault(LandsUtilities.REDSTONE_WAND_MODE, RedstoneWandState.Type.ALWAYS_ON).getTranslatedName()
         );
     }
@@ -48,7 +50,7 @@ public class RedstoneWandItem extends Item implements MouseWheelItem {
         if (context.isSecondaryUseActive()) {
             var level = context.getLevel();
             var player = context.getPlayer();
-            if (!level.isClientSide && player != null) {
+            if (!level.isClientSide() && player != null) {
                 var pos = context.getClickedPos();
                 var blockState = level.getBlockState(pos);
                 var chunk = level.getChunkAt(pos);
@@ -64,7 +66,7 @@ public class RedstoneWandItem extends Item implements MouseWheelItem {
                 } else {
                     onBlocks.put(pos.asLong(), new RedstoneWandState(type));
                 }
-                chunk.setUnsaved(true);
+                chunk.markUnsaved();
                 chunk.syncData(LandsUtilities.REDSTONE_WAND_ON_BLOCKS);
                 level.updateNeighborsAt(pos, blockState.getBlock());
 
@@ -77,7 +79,7 @@ public class RedstoneWandItem extends Item implements MouseWheelItem {
                 }
                 player.sendSystemMessage(Component.translatable(message, args.toArray()));
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         return super.useOn(context);
@@ -99,14 +101,14 @@ public class RedstoneWandItem extends Item implements MouseWheelItem {
             var val = onBlocks.get(pos.asLong());
             if (val != null && val.type().hasRightClickHandling()) {
                 event.setCanceled(true);
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     val = val.handleRightClick((ServerLevel) level, pos);
                     onBlocks.put(pos.asLong(), val);
-                    chunk.setUnsaved(true);
+                    chunk.markUnsaved();
                     chunk.syncData(LandsUtilities.REDSTONE_WAND_ON_BLOCKS);
                     level.updateNeighborsAt(pos, chunk.getBlockState(pos).getBlock());
                 }
-                event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+                event.setCancellationResult(InteractionResult.SUCCESS);
             }
         }
     }

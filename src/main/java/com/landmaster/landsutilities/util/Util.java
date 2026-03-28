@@ -12,17 +12,20 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Util {
-    public static final TagKey<Fluid> XP = TagKey.create(Registries.FLUID, ResourceLocation.fromNamespaceAndPath("c", "experience"));
+    public static final TagKey<Fluid> XP = TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("c", "experience"));
 
     public static final Codec<Long2ObjectMap<RedstoneWandState>> WAND_STATES_CODEC = Codec.pair(Codec.LONG.fieldOf("pos").codec(), RedstoneWandState.CODEC.fieldOf("state").codec())
             .listOf().xmap(
@@ -45,8 +48,8 @@ public class Util {
     public static final Codec<LongSet> LONG_SET_CODEC = Codec.LONG_STREAM.xmap(LongOpenHashSet::toSet, LongCollection::longStream);
     public static final StreamCodec<ByteBuf, LongSet> LONG_SET_STREAM_CODEC = ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.collection(LongOpenHashSet::new));
 
-    public static ResourceLocation loc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(LandsUtilities.MODID, path);
+    public static Identifier loc(String path) {
+        return Identifier.fromNamespaceAndPath(LandsUtilities.MODID, path);
     }
 
     public static long levelToFluidXp(int level) {
@@ -85,5 +88,19 @@ public class Util {
             return Component.translatable("gui.landsutilities.direction.none");
         }
         return Component.translatable("gui.landsutilities.direction." + dir.getName());
+    }
+
+    public static ItemStack[] toArray(Container cont) {
+        var result = new ItemStack[cont.getContainerSize()];
+        for (int i=0; i<cont.getContainerSize(); ++i) {
+            result[i] = cont.getItem(i);
+        }
+        return result;
+    }
+
+    public static void initFromList(Container cont, List<ItemStack> stacks) {
+        for (int i=0; i<cont.getContainerSize(); ++i) {
+            cont.setItem(i, stacks.get(i));
+        }
     }
 }

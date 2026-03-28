@@ -12,11 +12,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import javax.annotation.Nonnull;
 
-public record RemoteMenuPacket(double range, ClientboundOpenScreenPacket packet) implements CustomPacketPayload {
+public record RemoteMenuPacket(float range, ClientboundOpenScreenPacket packet) implements CustomPacketPayload {
     public static final Type<RemoteMenuPacket> TYPE = new Type<>(Util.loc("remote_menu_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoteMenuPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.DOUBLE, RemoteMenuPacket::range,
+            ByteBufCodecs.FLOAT, RemoteMenuPacket::range,
             ClientboundOpenScreenPacket.STREAM_CODEC, RemoteMenuPacket::packet,
             RemoteMenuPacket::new
     );
@@ -28,7 +28,7 @@ public record RemoteMenuPacket(double range, ClientboundOpenScreenPacket packet)
         }
         var newMenu = context.player().containerMenu;
         if (newMenu != oldMenu) {
-            RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, range);
+            RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, new RemoteControlItem.MenuData(context.player(), range));
         }
     }
 

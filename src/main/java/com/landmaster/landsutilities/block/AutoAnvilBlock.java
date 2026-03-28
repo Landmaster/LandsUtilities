@@ -7,29 +7,39 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
-import java.util.List;
-
-import net.minecraft.world.Containers;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
-public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
+public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> implements TooltipBlock {
     private static final MapCodec<AutoAnvilBlock> CODEC = simpleCodec(AutoAnvilBlock::new);
+
+    private static final Map<Direction.Axis, VoxelShape> SHAPES = Shapes.rotateHorizontalAxis(
+            Shapes.or(
+                    Block.column(12, 0, 4),
+                    Block.column(8, 10, 4, 5),
+                    Block.column(4, 8, 5, 10),
+                    Block.column(10, 16, 10, 16)
+            )
+    );
 
     public AutoAnvilBlock(Properties properties) {
         super(properties, LandsUtilities.AUTO_ANVIL_TE);
@@ -37,27 +47,8 @@ public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
     }
 
     @Override
-    protected void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            var blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof AutoAnvilBlockEntity autoAnvil) {
-                var handler = autoAnvil.automationItemHandler();
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    var stack = handler.getStackInSlot(i);
-                    if (!stack.isEmpty()) {
-                        Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-                    }
-                }
-            }
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-
-    @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltipComponents, @Nonnull TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-
-        tooltipComponents.add(Component.translatable("tooltip.landsutilities.auto_anvil").withStyle(ChatFormatting.AQUA));
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull Item.TooltipContext context, @Nonnull TooltipDisplay display, @Nonnull Consumer<Component> builder, @Nonnull TooltipFlag tooltipFlag) {
+        builder.accept(Component.translatable("tooltip.landsutilities.auto_anvil").withStyle(ChatFormatting.AQUA));
     }
 
     @Override
@@ -84,7 +75,7 @@ public class AutoAnvilBlock extends FunctionalBlock<AutoAnvilBlockEntity> {
     @Nonnull
     @Override
     protected VoxelShape getShape(BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
-        return state.getValue(HORIZONTAL_FACING).getAxis() == Direction.Axis.X ? AnvilBlock.X_AXIS_AABB : AnvilBlock.Z_AXIS_AABB;
+        return SHAPES.get((state.getValue(HORIZONTAL_FACING)).getAxis());
     }
 
     @Nonnull

@@ -1,16 +1,20 @@
 package com.landmaster.landsutilities.level;
 
 import com.landmaster.landsutilities.LandsUtilities;
+import com.landmaster.landsutilities.util.Util;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.longs.Long2LongMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -20,28 +24,30 @@ import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RedstoneWandTickets extends SavedData {
-    public static final Factory<RedstoneWandTickets> FACTORY = new Factory<>(RedstoneWandTickets::new, RedstoneWandTickets::new);
-
-    private final Long2LongMap posToTime = new Long2LongOpenHashMap();
-
-    private final Codec<Long2LongMap> POS_TO_TIME_CODEC = Codec.pair(Codec.LONG.fieldOf("pos").codec(), Codec.LONG.fieldOf("time").codec())
+    private static final Codec<Long2LongMap> POS_TO_TIME_CODEC = Codec.pair(Codec.LONG.fieldOf("pos").codec(), Codec.LONG.fieldOf("time").codec())
             .listOf().xmap(
                     list -> list.stream().collect(Collectors.toMap(Pair::getFirst, Pair::getSecond, (a, b) -> a, Long2LongOpenHashMap::new)),
                     map -> map.long2LongEntrySet().stream().map(pair -> Pair.of(pair.getLongKey(), pair.getLongValue())).toList()
             );
 
-    public RedstoneWandTickets() {}
+    public static final SavedDataType<RedstoneWandTickets> ID = new SavedDataType<>(
+            Util.loc("redstone_wand_tickets"),
+            RedstoneWandTickets::new,
+            RecordCodecBuilder.create(instance -> instance.group(
+                    POS_TO_TIME_CODEC.fieldOf("posToTime").forGetter(RedstoneWandTickets::posToTime)
+            ).apply(instance, RedstoneWandTickets::new))
+    );
 
-    public RedstoneWandTickets(CompoundTag tag, HolderLookup.Provider registries) {
-        posToTime.putAll(POS_TO_TIME_CODEC.parse(NbtOps.INSTANCE, tag.get("posToTime")).getOrThrow());
+    @Getter
+    private final Long2LongMap posToTime;
+
+
+    public RedstoneWandTickets() {
+        this(new Long2LongOpenHashMap());
     }
 
-    @Override
-    @Nonnull
-    public CompoundTag save(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider registries) {
-        var result = new CompoundTag();
-        result.put("posToTime", POS_TO_TIME_CODEC.encodeStart(NbtOps.INSTANCE, posToTime).getOrThrow());
-        return result;
+    public RedstoneWandTickets(Long2LongMap posToTime) {
+        this.posToTime = posToTime;
     }
 
     public void submitTicket(BlockPos pos, long time) {
@@ -51,7 +57,7 @@ public class RedstoneWandTickets extends SavedData {
 
     public static RedstoneWandTickets getTickets(ServerLevel level) {
         var dataStorage = level.getDataStorage();
-        return dataStorage.computeIfAbsent(FACTORY, "landsutilities:redstone_wand_tickets");
+        return dataStorage.computeIfAbsent(ID);
     }
 
     @SubscribeEvent

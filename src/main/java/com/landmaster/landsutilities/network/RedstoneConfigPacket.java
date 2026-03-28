@@ -27,9 +27,9 @@ public record RedstoneConfigPacket(BlockPos pos, RedstoneConfig config) implemen
         var level = ctx.player().level();
         if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof BaseBlockEntity te) {
             te.redstoneConfig(config);
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 te.setChanged();
-                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), this);
+                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, ChunkPos.containing(pos), this);
             }
         }
     }

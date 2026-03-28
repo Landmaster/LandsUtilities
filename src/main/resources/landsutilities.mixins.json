@@ -5,8 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockStateBaseMixin",
+    "ContainerMixin",
     "ContainerOpenersCounterMixin",
-    "PlayerMixin",
     "ServerPlayerMixin"
   ],
   "client": [
