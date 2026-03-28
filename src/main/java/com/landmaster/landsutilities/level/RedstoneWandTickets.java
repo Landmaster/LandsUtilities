@@ -24,7 +24,7 @@ public class RedstoneWandTickets extends SavedData {
 
     private final Long2LongMap posToTime = new Long2LongOpenHashMap();
 
-    private final Codec<Long2LongMap> POS_TO_TIME_CODEC = Codec.pair(Codec.LONG.fieldOf("pos").codec(), Codec.LONG.fieldOf("time").codec())
+    private static final Codec<Long2LongMap> POS_TO_TIME_CODEC = Codec.pair(Codec.LONG.fieldOf("pos").codec(), Codec.LONG.fieldOf("time").codec())
             .listOf().xmap(
                     list -> list.stream().collect(Collectors.toMap(Pair::getFirst, Pair::getSecond, (a, b) -> a, Long2LongOpenHashMap::new)),
                     map -> map.long2LongEntrySet().stream().map(pair -> Pair.of(pair.getLongKey(), pair.getLongValue())).toList()
