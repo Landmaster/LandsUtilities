@@ -26,6 +26,7 @@ public class ModModelProvider extends ModelProvider {
     @Override
     protected void registerModels(@Nonnull BlockModelGenerators blockModels, @Nonnull ItemModelGenerators itemModels) {
         blockModels.createNonTemplateModelBlock(LandsUtilities.FLUID_XP_BLOCK.get());
+        blockModels.createRotatableColumn(LandsUtilities.XP_COLLECTOR.get());
 
         itemModels.generateFlatItem(LandsUtilities.REMOTE_CONTROL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(LandsUtilities.REDSTONE_WAND.get(), ModelTemplates.FLAT_HANDHELD_ITEM);

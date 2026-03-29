@@ -1,6 +1,7 @@
 package com.landmaster.landsutilities.level;
 
 import com.landmaster.landsutilities.LandsUtilities;
+import com.landmaster.landsutilities.block.DisplayRangeBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -8,11 +9,13 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = LandsUtilities.MODID)
@@ -21,12 +24,12 @@ public class LevelRendering {
     private static void onRenderLevel(RenderLevelStageEvent.AfterTranslucentBlocks event) {
         var level = Minecraft.getInstance().level;
         var player = Minecraft.getInstance().player;
+        var vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.LINES);
+        var cameraPos = event.getLevelRenderState().cameraRenderState.pos;
         if (player.getMainHandItem().is(LandsUtilities.REDSTONE_WAND)
                 || player.getOffhandItem().is(LandsUtilities.REDSTONE_WAND)) {
             var originChunkPos = player.chunkPosition();
             var cursor = new BlockPos.MutableBlockPos();
-            var vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderTypes.LINES);
-            var cameraPos = event.getLevelRenderState().cameraRenderState.pos;
             for (int i = -2; i <= 2; ++i) {
                 for (int j = -2; j <= 2; ++j) {
                     var chunk = level.getChunk(originChunkPos.x() + i, originChunkPos.z() + j);
@@ -35,9 +38,19 @@ public class LevelRendering {
                         cursor.set(pos);
                         renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
                                 cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
-                                ARGB.red(color) / 256.0f, ARGB.green(color) / 256.0f,
-                                ARGB.blue(color) / 256.0f, ARGB.alpha(color) / 256.0f);
+                                color, 1);
                     });
+                }
+            }
+        }
+        if (Minecraft.getInstance().hitResult instanceof BlockHitResult blockHitResult) {
+            if (level.getBlockState(blockHitResult.getBlockPos()).getBlock() instanceof DisplayRangeBlock displayRangeBlock) {
+                var box = displayRangeBlock.displayRangeBox(level, blockHitResult.getBlockPos());
+                if (box != null) {
+                    var color = displayRangeBlock.displayRangeColor();
+                    renderShape(event.getPoseStack(), vertexConsumer, Shapes.create(box),
+                            -cameraPos.x, -cameraPos.y, -cameraPos.z,
+                            color, 3);
                 }
             }
         }
@@ -50,10 +63,8 @@ public class LevelRendering {
             double x,
             double y,
             double z,
-            float red,
-            float green,
-            float blue,
-            float alpha
+            int color,
+            float width
     ) {
         PoseStack.Pose posestack$pose = poseStack.last();
         shape.forAllEdges(
@@ -66,13 +77,13 @@ public class LevelRendering {
                     f1 /= f3;
                     f2 /= f3;
                     consumer.addVertex(posestack$pose, (float)(p_323073_ + x), (float)(p_323074_ + y), (float)(p_323075_ + z))
-                            .setColor(red, green, blue, alpha)
+                            .setColor(color)
                             .setNormal(posestack$pose, f, f1, f2)
-                            .setLineWidth(1.0f);
+                            .setLineWidth(width);
                     consumer.addVertex(posestack$pose, (float)(p_323076_ + x), (float)(p_323077_ + y), (float)(p_323078_ + z))
-                            .setColor(red, green, blue, alpha)
+                            .setColor(color)
                             .setNormal(posestack$pose, f, f1, f2)
-                            .setLineWidth(1.0f);
+                            .setLineWidth(width);
                 }
         );
     }

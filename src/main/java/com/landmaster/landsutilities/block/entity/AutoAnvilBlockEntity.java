@@ -2,6 +2,7 @@ package com.landmaster.landsutilities.block.entity;
 
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
+import com.landmaster.landsutilities.util.SyncInfo;
 import com.landmaster.landsutilities.util.Util;
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
@@ -61,12 +62,9 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     @Getter(lazy = true)
     private final ResourceHandler<ItemResource> automationItemHandler = computeItemHandler();
 
-    public static final Map<String, Optional<Direction>> INITIAL_IO_CONFIG = Map.of(
-            "external_tank", Optional.of(Direction.UP)
-    );
-
     public AutoAnvilBlockEntity(BlockPos pos, BlockState blockState) {
-        super(LandsUtilities.AUTO_ANVIL_TE.get(), pos, blockState, INITIAL_IO_CONFIG);
+        super(LandsUtilities.AUTO_ANVIL_TE.get(), pos, blockState,
+                new SyncInfo<>("external_tank", Direction.CODEC, Direction.STREAM_CODEC, Direction.UP, v -> true));
     }
 
     protected ResourceHandler<ItemResource> computeInputItems() {
@@ -111,8 +109,8 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     }
 
     protected Optional<ResourceHandler<FluidResource>> externalTankHandler() {
-        return getConfiguration("external_tank").map(dir ->
-                level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.relative(dir), dir.getOpposite()));
+        var dir = (Direction) syncMap().get(0);
+        return Optional.ofNullable(level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.relative(dir), dir.getOpposite()));
     }
 
     private ResourceHandler<ItemResource> computeItemHandler() {

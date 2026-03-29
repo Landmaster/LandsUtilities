@@ -1,12 +1,17 @@
 package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.block.AutoAnvilBlock;
+import com.landmaster.landsutilities.block.XPCollectorBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
+import com.landmaster.landsutilities.block.entity.XPCollectorBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
+import com.landmaster.landsutilities.item.ModBlockItem;
 import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
+import com.landmaster.landsutilities.menu.ModContainerMenu;
+import com.landmaster.landsutilities.menu.XPCollectorMenu;
 import com.landmaster.landsutilities.network.*;
 import com.landmaster.landsutilities.util.RedstoneWandState;
 import com.landmaster.landsutilities.util.RemoteControlLink;
@@ -21,7 +26,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Items;
@@ -101,7 +105,15 @@ public class LandsUtilities {
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             props -> props.noOcclusion());
-    public static final DeferredItem<BlockItem> AUTO_ANVIL_ITEM = ITEMS.registerSimpleBlockItem(AUTO_ANVIL);
+    public static final DeferredItem<ModBlockItem> AUTO_ANVIL_ITEM = ITEMS.registerItem(
+            "auto_anvil", props -> new ModBlockItem(AUTO_ANVIL.get(), props)
+    );
+
+    public static final DeferredBlock<XPCollectorBlock> XP_COLLECTOR = BLOCKS.registerBlock("xp_collector", XPCollectorBlock::new,
+            props -> props.noOcclusion());
+    public static final DeferredItem<ModBlockItem> XP_COLLECTOR_ITEM = ITEMS.registerItem(
+            "xp_collector", props -> new ModBlockItem(XP_COLLECTOR.get(), props)
+    );
 
     public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
             props -> props.stacksTo(1).enchantable(10));
@@ -110,9 +122,13 @@ public class LandsUtilities {
 
     public static final Supplier<BlockEntityType<AutoAnvilBlockEntity>> AUTO_ANVIL_TE = BLOCK_ENTITIES.register("auto_anvil",
             () -> new BlockEntityType<>(AutoAnvilBlockEntity::new, AUTO_ANVIL.get()));
+    public static final Supplier<BlockEntityType<XPCollectorBlockEntity>> XP_COLLECTOR_TE = BLOCK_ENTITIES.register("xp_collector",
+            () -> new BlockEntityType<>(XPCollectorBlockEntity::new, XP_COLLECTOR.get()));
 
     public static final Supplier<MenuType<AutoAnvilMenu>> AUTO_ANVIL_MENU = MENU_TYPES.register("auto_anvil",
-            () -> IMenuTypeExtension.create(AutoAnvilMenu::new));
+            () -> ModContainerMenu.createMenuType(AutoAnvilMenu::new, AUTO_ANVIL_TE.get()));
+    public static final Supplier<MenuType<XPCollectorMenu>> XP_COLLECTOR_MENU = MENU_TYPES.register("xp_collector",
+            () -> ModContainerMenu.createMenuType(XPCollectorMenu::new, XP_COLLECTOR_TE.get()));
 
     public static final Supplier<AttachmentType<Long2ObjectMap<RedstoneWandState>>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
@@ -174,6 +190,7 @@ public class LandsUtilities {
                         out.accept(REMOTE_CONTROL);
                         out.accept(REDSTONE_WAND);
                         out.accept(FLUID_XP_BUCKET);
+                        out.accept(XP_COLLECTOR);
                     })
                     .build());
 
@@ -194,8 +211,8 @@ public class LandsUtilities {
 
     @SubscribeEvent
     private static void registerPacketHandlers(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("1");
-        registrar.playBidirectional(IOConfigPacket.TYPE, IOConfigPacket.STREAM_CODEC, IOConfigPacket::handle, IOConfigPacket::handle);
+        var registrar = event.registrar("2");
+        registrar.playBidirectional(SyncMapPacket.TYPE, SyncMapPacket.STREAM_CODEC, SyncMapPacket::handle, SyncMapPacket::handle);
         registrar.playBidirectional(RedstoneConfigPacket.TYPE, RedstoneConfigPacket.STREAM_CODEC, RedstoneConfigPacket::handle, RedstoneConfigPacket::handle);
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
         registrar.playToClient(RemoteAdvancedMenuPacket.TYPE, RemoteAdvancedMenuPacket.STREAM_CODEC, RemoteAdvancedMenuPacket::handle);

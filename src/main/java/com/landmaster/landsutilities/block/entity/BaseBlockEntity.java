@@ -1,6 +1,8 @@
 package com.landmaster.landsutilities.block.entity;
 
 import com.landmaster.landsutilities.util.RedstoneConfig;
+import com.landmaster.landsutilities.util.SyncInfo;
+import com.landmaster.landsutilities.util.SyncMap;
 import com.mojang.serialization.Codec;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,46 +32,30 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class BaseBlockEntity extends BlockEntity {
-    private static final Codec<Map<String, Optional<Direction>>> IO_CONFIGURATION_CODEC = Codec.unboundedMap(
-            Codec.STRING, ExtraCodecs.optionalEmptyMap(Direction.CODEC)
-    );
-
-    private Map<String, Optional<Direction>> ioConfiguration;
+    @Getter
+    private final SyncMap syncMap;
     @Getter
     @Setter
     private RedstoneConfig redstoneConfig = RedstoneConfig.IGNORE;
     @Getter
     protected boolean active = true;
 
-    public BaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, Map<String, Optional<Direction>> initialIoConfiguration) {
+    public BaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, SyncInfo<?>...validFields) {
         super(type, pos, blockState);
-        this.ioConfiguration = new HashMap<>(initialIoConfiguration);
-    }
-
-    public Optional<Direction> getConfiguration(String key) {
-        var res = ioConfiguration.get(key);
-        return res != null ? res : Optional.empty();
-    }
-
-    public boolean setConfiguration(String key, @Nullable Direction direction) {
-        if (!ioConfiguration.containsKey(key)) {
-            return false;
-        }
-        ioConfiguration.put(key, Optional.ofNullable(direction));
-        return true;
+        this.syncMap = new SyncMap(validFields);
     }
 
     @Override
     protected void loadAdditional(@Nonnull ValueInput input) {
         super.loadAdditional(input);
-        ioConfiguration = input.read("ioConfiguration", IO_CONFIGURATION_CODEC).get();
+        input.readChild("syncMap", syncMap);
         redstoneConfig = input.read("redstoneConfig", RedstoneConfig.CODEC).orElse(RedstoneConfig.IGNORE);
     }
 
     @Override
     protected void saveAdditional(@Nonnull ValueOutput output) {
         super.saveAdditional(output);
-        output.store("ioConfiguration", IO_CONFIGURATION_CODEC, ioConfiguration);
+        output.putChild("syncMap", syncMap);
         output.store("redstoneConfig", RedstoneConfig.CODEC, redstoneConfig);
     }
 

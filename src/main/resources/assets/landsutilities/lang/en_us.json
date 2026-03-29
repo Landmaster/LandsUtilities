@@ -1,5 +1,6 @@
 {
   "block.landsutilities.auto_anvil": "Auto Anvil",
+  "block.landsutilities.xp_collector": "XP Collector",
   "enchantment.landsutilities.remote_control_capacity": "Remote Control Capacity",
   "enchantment.landsutilities.remote_range": "Remote Control Range",
   "block.landsutilities.fluid_xp": "Fluid XP",
@@ -36,5 +37,9 @@
   "tooltip.landsutilities.redstone_wand.type.always_on": "Always-On",
   "tooltip.landsutilities.redstone_wand.type.lever": "Lever",
   "tooltip.landsutilities.redstone_wand.type.button": "Button",
-  "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button"
+  "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button",
+  "gui.landsutilities.radius": "Radius",
+  "gui.landsutilities.offset.x": "Offset X",
+  "gui.landsutilities.offset.y": "Offset Y",
+  "gui.landsutilities.offset.z": "Offset Z"
 }

@@ -21,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Util {
@@ -74,16 +73,16 @@ public class Util {
         return (T) values[(value.ordinal() + (reverse ? values.length-1 : 1)) % values.length];
     }
 
-    public static Optional<Direction> cycleConfiguration(@Nullable Direction original, boolean allowNone) {
+    public static @Nullable Direction cycleDirection(@Nullable Direction original, boolean allowNone) {
         if (original == null) {
-            return Optional.of(Direction.DOWN);
+            return Direction.DOWN;
         } else if (original == Direction.EAST) {
-            return allowNone ? Optional.empty() : cycleConfiguration(null, true);
+            return allowNone ? null : cycleDirection(null, true);
         }
-        return Optional.of(cycleEnum(original));
+        return cycleEnum(original);
     }
 
-    public static Component configToComponent(@Nullable Direction dir) {
+    public static Component directionToComponent(@Nullable Direction dir) {
         if (dir == null) {
             return Component.translatable("gui.landsutilities.direction.none");
         }

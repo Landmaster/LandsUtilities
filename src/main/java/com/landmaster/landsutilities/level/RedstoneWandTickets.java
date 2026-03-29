@@ -41,7 +41,6 @@ public class RedstoneWandTickets extends SavedData {
     @Getter
     private final Long2LongMap posToTime;
 
-
     public RedstoneWandTickets() {
         this(new Long2LongOpenHashMap());
     }

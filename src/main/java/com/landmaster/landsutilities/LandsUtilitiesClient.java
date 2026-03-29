@@ -1,6 +1,7 @@
 package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.menu.AutoAnvilScreen;
+import com.landmaster.landsutilities.menu.XPCollectorScreen;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -24,6 +25,7 @@ public class LandsUtilitiesClient {
     @SubscribeEvent
     private static void registerMenuScreens(RegisterMenuScreensEvent event) {
         event.register(LandsUtilities.AUTO_ANVIL_MENU.get(), AutoAnvilScreen::new);
+        event.register(LandsUtilities.XP_COLLECTOR_MENU.get(), XPCollectorScreen::new);
     }
 
     @SubscribeEvent

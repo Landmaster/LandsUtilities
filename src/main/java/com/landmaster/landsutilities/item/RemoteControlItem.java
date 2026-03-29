@@ -119,7 +119,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                             player.sendSystemMessage(
                                     Component.translatable("message.landsutilities.linked_remote",
                                             newEntry.pos().toShortString(), newEntry.dimension().identifier().toString(),
-                                            Util.configToComponent(newEntry.face())));
+                                            Util.directionToComponent(newEntry.face())));
                         }
                     }
                 }

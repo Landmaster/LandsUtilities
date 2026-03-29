@@ -30,6 +30,17 @@ public class Config {
                     null
             );
 
+    public static final ModConfigSpec.IntValue XP_COLLECTOR_RADIUS = BUILDER
+            .comment("Radius in blocks of XP Collector")
+            .defineInRange("xpCollectorRadius", 3, 1, Byte.MAX_VALUE);
+    public static final ModConfigSpec.IntValue XP_COLLECTOR_MAX_OFFSET = BUILDER
+            .comment("Maximum offset in blocks of XP Collector")
+            .defineInRange("xpCollectorMaxOffset", 5, 1, Byte.MAX_VALUE);
+
+    public static boolean offsetInRange(byte offset) {
+        return offset >= -XP_COLLECTOR_MAX_OFFSET.get() && offset <= XP_COLLECTOR_MAX_OFFSET.get();
+    }
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static Set<String> remoteControlBlacklist;

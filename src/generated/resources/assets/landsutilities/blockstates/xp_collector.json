@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "landsutilities:block/xp_collector",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "landsutilities:block/xp_collector",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "landsutilities:block/xp_collector",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "landsutilities:block/xp_collector",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "landsutilities:block/xp_collector"
+    },
+    "facing=west": {
+      "model": "landsutilities:block/xp_collector",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

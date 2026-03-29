@@ -22,7 +22,7 @@ public class AutoAnvilScreen extends AbstractContainerScreen<AutoAnvilMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new IOConfigButton(leftPos+80, topPos+6, 90, 14, menu.blockEntity(), "external_tank", false));
+        addRenderableWidget(new IOConfigButton(leftPos+80, topPos+6, 90, 14, menu.blockEntity(), 0, false, "gui.landsutilities.config.external_tank"));
         addRenderableWidget(new RedstoneConfigButton(leftPos+156, topPos+20, menu.blockEntity()));
     }
 
