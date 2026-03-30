@@ -1,12 +1,14 @@
 package com.landmaster.landsutilities.util;
 
 import com.landmaster.landsutilities.LandsUtilities;
+import lombok.Getter;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.Set;
 
 public class UpgradeItemHandler extends ItemStacksResourceHandler {
+    @Getter
     private final Set<String> validTypes;
 
     public UpgradeItemHandler(int size, String...validTypes) {

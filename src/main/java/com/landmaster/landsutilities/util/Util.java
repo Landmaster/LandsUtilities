@@ -19,6 +19,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -95,6 +97,14 @@ public class Util {
         var result = new ItemStack[cont.getContainerSize()];
         for (int i=0; i<cont.getContainerSize(); ++i) {
             result[i] = cont.getItem(i);
+        }
+        return result;
+    }
+
+    public static ItemStack[] toArray(ResourceHandler<ItemResource> handler) {
+        var result = new ItemStack[handler.size()];
+        for (int i=0; i<result.length; ++i) {
+            result[i] = handler.getResource(i).toStack(handler.getAmountAsInt(i));
         }
         return result;
     }

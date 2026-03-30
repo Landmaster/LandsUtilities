@@ -1,9 +1,9 @@
 package com.landmaster.landsutilities.menu;
 
 import com.landmaster.landsutilities.menu.widget.IncrementalAdjustButton;
+import com.landmaster.landsutilities.menu.widget.RedstoneConfigButton;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-public class XPCollectorScreen extends AbstractContainerScreen<XPCollectorMenu> {
+public class XPCollectorScreen extends ModContainerScreen<XPCollectorMenu> {
     private static final Identifier BACKGROUND = Util.loc("textures/gui/xp_collector.png");
 
     public XPCollectorScreen(XPCollectorMenu menu, Inventory inventory, Component title) {
@@ -21,7 +21,7 @@ public class XPCollectorScreen extends AbstractContainerScreen<XPCollectorMenu> 
     @Override
     protected void init() {
         super.init();
-        // TODO add redstone config
+        addRenderableWidget(new RedstoneConfigButton(leftPos+156, topPos+20, menu.blockEntity()));
         for (int id = 0; id < 4; ++id) {
             addRenderableWidget(new IncrementalAdjustButton(leftPos + 70, topPos + 16 + id * 14, menu.blockEntity(), id, true));
             addRenderableWidget(new IncrementalAdjustButton(leftPos + 100, topPos + 16 + id * 14, menu.blockEntity(), id, false));

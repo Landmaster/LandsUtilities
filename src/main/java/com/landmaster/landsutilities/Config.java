@@ -36,11 +36,14 @@ public class Config {
     public static final ModConfigSpec.IntValue XP_COLLECTOR_MAX_OFFSET = BUILDER
             .comment("Maximum offset in blocks of XP Collector")
             .defineInRange("xpCollectorMaxOffset", 5, 1, 200);
+    public static final ModConfigSpec.IntValue XP_COLLECTOR_TICK_RATE = BUILDER
+            .comment("How many ticks to wait between XP collection for the XP Collector")
+            .defineInRange("xpCollectorTickCount", 20, 1, 200);
 
     public static final ModConfigSpec.ConfigValue<List<? extends Integer>> XP_INTERFACE_STORAGE = BUILDER
             .comment("XP interface capacity in mB. First element is base amount, subsequent elements are in increasing order of capacity upgrade level.")
             .defineList(
-                    "",
+                    "xpInterfaceCapacity",
                     List.of(1000000, 10000000, 100000000, 1000000000),
                     () -> 1000000,
                     val -> val instanceof Integer intVal && intVal > 0

@@ -17,7 +17,12 @@ public class AutoAnvilMenu extends ModContainerMenu<AutoAnvilBlockEntity> {
             var resultHandler = blockEntity.resultHandler();
             addSlot(blockEntity.getInputSlot(0, 27, 47));
             addSlot(blockEntity.getInputSlot(1, 76, 47));
-            addSlot(new ResourceHandlerSlot(resultHandler, resultHandler::set, 0, 134, 47));
+            addSlot(new ResourceHandlerSlot(resultHandler, resultHandler::set, 0, 134, 47) {
+                @Override
+                public boolean mayPlace(@Nonnull ItemStack stack) {
+                    return false;
+                }
+            });
         }
         initInventory(inventory, 84);
     }

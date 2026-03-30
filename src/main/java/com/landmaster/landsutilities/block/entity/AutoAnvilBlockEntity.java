@@ -9,7 +9,6 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -33,6 +33,7 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -114,7 +115,17 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     }
 
     private ResourceHandler<ItemResource> computeItemHandler() {
-        return new CombinedResourceHandler<>(inputItems(), resultHandler) {
+        return new CombinedResourceHandler<>(new DelegatingResourceHandler<>(inputItems()) {
+            @Override
+            public int extract(ItemResource resource, int amount, @Nonnull TransactionContext transaction) {
+                return 0;
+            }
+
+            @Override
+            public int extract(int index, ItemResource resource, int amount, @Nonnull TransactionContext transaction) {
+                return 0;
+            }
+        }, resultHandler) {
             @Override
             public boolean isValid(int index, ItemResource resource) {
                 return index < inputItems().size();
@@ -183,7 +194,9 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     @Override
     protected void saveAdditional(@Nonnull ValueOutput output) {
         super.saveAdditional(output);
-        output.store("inputItems", ItemStack.OPTIONAL_CODEC.listOf(), Arrays.asList(Util.toArray(resultGenerator().inputSlots)));
+        output.store("inputItems", ItemStack.OPTIONAL_CODEC.listOf(), Arrays.asList(
+                level instanceof ServerLevel ? Util.toArray(resultGenerator().inputSlots) : Util.toArray(inputItems())
+        ));
         output.putChild("resultItem", resultHandler);
     }
 

@@ -3,7 +3,6 @@ package com.landmaster.landsutilities.menu;
 import com.landmaster.landsutilities.menu.widget.RequestXPButton;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -11,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-public class XPInterfaceScreen extends AbstractContainerScreen<XPInterfaceMenu> {
+public class XPInterfaceScreen extends ModContainerScreen<XPInterfaceMenu> {
     private static final Identifier BACKGROUND = Util.loc("textures/gui/xp_interface.png");
 
     public XPInterfaceScreen(XPInterfaceMenu menu, Inventory inventory, Component title) {

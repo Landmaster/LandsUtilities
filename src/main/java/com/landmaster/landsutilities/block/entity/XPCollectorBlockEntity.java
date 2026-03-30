@@ -43,26 +43,28 @@ public class XPCollectorBlockEntity extends BaseBlockEntity implements MenuProvi
     @Override
     public void tick() {
         super.tick();
-        var xpOrbs = level.getEntities(
-                EntityTypeTest.forClass(ExperienceOrb.class),
-                getRange(),
-                v -> true);
-        var dir = getBlockState().getValue(FACING);
-        var cap = level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.relative(dir.getOpposite()), dir);
-        var resource = FluidResource.of(LandsUtilities.FLUID_XP_STILL.get());
-        if (cap != null) {
-            for (var orb : xpOrbs) {
-                int valueToInsert;
-                try (var txn = Transaction.openRoot()) {
-                    valueToInsert = cap.insert(resource, 20 * orb.getValue(), txn) / 20;
-                }
-                try (var txn = Transaction.openRoot()) {
-                    if (cap.insert(resource, valueToInsert * 20, txn) >= valueToInsert) {
-                        orb.setValue(orb.getValue() - valueToInsert);
-                        if (orb.getValue() <= 0) {
-                            orb.discard();
+        if (active && (level.getGameTime() + hashCode()) % Config.XP_COLLECTOR_TICK_RATE.get() == 0) {
+            var xpOrbs = level.getEntities(
+                    EntityTypeTest.forClass(ExperienceOrb.class),
+                    getRange(),
+                    v -> true);
+            var dir = getBlockState().getValue(FACING);
+            var cap = level.getCapability(Capabilities.Fluid.BLOCK, worldPosition.relative(dir.getOpposite()), dir);
+            var resource = FluidResource.of(LandsUtilities.FLUID_XP_STILL.get());
+            if (cap != null) {
+                for (var orb : xpOrbs) {
+                    int valueToInsert;
+                    try (var txn = Transaction.openRoot()) {
+                        valueToInsert = cap.insert(resource, 20 * orb.getValue(), txn) / 20;
+                    }
+                    try (var txn = Transaction.openRoot()) {
+                        if (cap.insert(resource, valueToInsert * 20, txn) >= valueToInsert) {
+                            orb.setValue(orb.getValue() - valueToInsert);
+                            if (orb.getValue() <= 0) {
+                                orb.discard();
+                            }
+                            txn.commit();
                         }
-                        txn.commit();
                     }
                 }
             }

@@ -4,7 +4,6 @@ import com.landmaster.landsutilities.menu.widget.IOConfigButton;
 import com.landmaster.landsutilities.menu.widget.RedstoneConfigButton;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -12,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-public class AutoAnvilScreen extends AbstractContainerScreen<AutoAnvilMenu> {
+public class AutoAnvilScreen extends ModContainerScreen<AutoAnvilMenu> {
     private static final Identifier BACKGROUND = Util.loc("textures/gui/auto_anvil.png");
 
     public AutoAnvilScreen(AutoAnvilMenu menu, Inventory playerInventory, Component title) {
