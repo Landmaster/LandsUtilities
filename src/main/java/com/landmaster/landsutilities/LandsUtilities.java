@@ -34,9 +34,12 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -113,18 +116,32 @@ public class LandsUtilities {
     );
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
-            props -> props.noOcclusion());
+            props -> props
+                    .noOcclusion()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(5.0F, 1200.0F)
+                    .sound(SoundType.ANVIL)
+                    .pushReaction(PushReaction.BLOCK));
     public static final DeferredItem<ModBlockItem> AUTO_ANVIL_ITEM = ITEMS.registerItem(
             "auto_anvil", props -> new ModBlockItem(AUTO_ANVIL.get(), props)
     );
 
     public static final DeferredBlock<XPCollectorBlock> XP_COLLECTOR = BLOCKS.registerBlock("xp_collector", XPCollectorBlock::new,
-            props -> props.noOcclusion());
+            props -> props.noOcclusion()
+                    .mapColor(MapColor.COLOR_LIGHT_GREEN)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(0.5F)
+                    .pushReaction(PushReaction.DESTROY));
     public static final DeferredItem<ModBlockItem> XP_COLLECTOR_ITEM = ITEMS.registerItem(
             "xp_collector", props -> new ModBlockItem(XP_COLLECTOR.get(), props)
     );
 
-    public static final DeferredBlock<XPInterfaceBlock> XP_INTERFACE = BLOCKS.registerBlock("xp_interface", XPInterfaceBlock::new);
+    public static final DeferredBlock<XPInterfaceBlock> XP_INTERFACE = BLOCKS.registerBlock("xp_interface", XPInterfaceBlock::new,
+            props -> props
+                    .mapColor(MapColor.COLOR_LIGHT_BLUE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(1.0F));
     public static final DeferredItem<ModBlockItem> XP_INTERFACE_ITEM = ITEMS.registerItem(
             "xp_interface", props -> new ModBlockItem(XP_INTERFACE.get(), props)
     );
@@ -193,7 +210,7 @@ public class LandsUtilities {
     public static final DeferredBlock<LiquidBlock> FLUID_XP_BLOCK = BLOCKS.registerBlock(
             "fluid_xp",
             props -> new LiquidBlock(FLUID_XP_STILL.get(), props),
-            props -> props.liquid().noCollision().replaceable().strength(100.0f).pushReaction(PushReaction.DESTROY).noLootTable()
+            props -> props.liquid().mapColor(MapColor.COLOR_GREEN).noCollision().replaceable().strength(100.0f).pushReaction(PushReaction.DESTROY).noLootTable()
     );
     public static final DeferredItem<BucketItem> FLUID_XP_BUCKET = ITEMS.registerItem(
             "fluid_xp_bucket",
