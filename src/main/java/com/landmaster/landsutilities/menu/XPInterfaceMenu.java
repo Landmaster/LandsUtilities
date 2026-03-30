@@ -15,7 +15,7 @@ public class XPInterfaceMenu extends ModContainerMenu<XPInterfaceBlockEntity> {
         super(LandsUtilities.XP_INTERFACE_MENU.get(), containerId, blockEntity);
         if (blockEntity != null) {
             var upgradeHandler = blockEntity.upgradeHandler();
-            addSlot(new UpgradeHandlerSlot(upgradeHandler, 0, 152, 47));
+            addSlot(new UpgradeHandlerSlot(upgradeHandler, 0, 152, 37));
         }
         initInventory(inventory, 84);
     }
