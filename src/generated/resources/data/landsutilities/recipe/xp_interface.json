@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "d": "#c:gems/diamond",
+    "d": "minecraft:prismarine",
     "e": "minecraft:experience_bottle",
     "p": "#c:gems/prismarine"
   },

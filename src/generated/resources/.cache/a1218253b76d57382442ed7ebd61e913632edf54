@@ -1,4 +1,4 @@
-// 26.1	2026-03-29T23:53:12.38332205	Land's Utilities Recipes
+// 26.1	2026-03-29T23:56:17.908097278	Land's Utilities Recipes
 973221bd3847297c7d4075e3260ad4cb21b8aeaa data/landsutilities/advancement/recipes/misc/auto_anvil.json
 7540f060f61c05afe47d86aecc58765aadcda663 data/landsutilities/advancement/recipes/misc/capacity_upgrade_1.json
 79b6d9d111a517f3cdf0a47690092b5f189b929c data/landsutilities/advancement/recipes/misc/capacity_upgrade_2.json
@@ -16,4 +16,4 @@ cd4c4a2e8a5ea95cc43c995c82577ec479224531 data/landsutilities/recipe/capacity_upg
 fedbf927977612804a0157cf7fc66dfefca035b7 data/landsutilities/recipe/remote_control.json
 56b14f045c7462338946e16a25bddc1eba53634b data/landsutilities/recipe/remote_control_reset.json
 5d23ea53b9cfd16af179c864f6164b8e849cf802 data/landsutilities/recipe/xp_collector.json
-e523b637a0dafce3ec76a9ee9b80a83eba84a71f data/landsutilities/recipe/xp_interface.json
+43ae40e4bf49b52dafff904be92020faf10fd386 data/landsutilities/recipe/xp_interface.json

@@ -66,7 +66,7 @@ public class ModRecipeProvider extends RecipeProvider {
                 RecipeCategory.MISC, LandsUtilities.XP_INTERFACE
         )
                 .define('e', Items.EXPERIENCE_BOTTLE)
-                .define('d', Tags.Items.GEMS_DIAMOND)
+                .define('d', Items.PRISMARINE)
                 .define('p', Tags.Items.GEMS_PRISMARINE)
                 .pattern("pdp")
                 .pattern("ded")
