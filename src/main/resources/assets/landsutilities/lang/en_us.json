@@ -30,9 +30,9 @@
   "tab.landsutilities": "Land's Utilities",
   "tooltip.landsutilities.auto_anvil": "Just like a vanilla anvil but runs automatically using fluid experience from any mod. Note: Do NOT pipe fluid experience directly into the anvil; instead pipe it into an adjacent tank in the configured direction (by default, above the anvil).",
   "tooltip.landsutilities.linked_remote.amount": "%d location(s) stored",
-  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs",
+  "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button",
   "tooltip.landsutilities.redstone_wand.type.always_on": "Always-On",
-  "tooltip.landsutilities.redstone_wand.type.lever": "Lever",
   "tooltip.landsutilities.redstone_wand.type.button": "Button",
-  "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button"
+  "tooltip.landsutilities.redstone_wand.type.lever": "Lever",
+  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs"
 }
