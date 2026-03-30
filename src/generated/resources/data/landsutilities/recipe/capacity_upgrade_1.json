@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "minecraft:bucket",
+    "c": "#c:ingots/copper",
+    "i": "#c:ingots/iron"
+  },
+  "pattern": [
+    "cic",
+    "ibi",
+    "cic"
+  ],
+  "result": {
+    "id": "landsutilities:capacity_upgrade_1"
+  }
+}

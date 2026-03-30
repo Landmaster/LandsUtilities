@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:anvil",
+    "b": "minecraft:experience_bottle",
+    "e": "minecraft:ender_eye",
+    "h": "minecraft:hopper"
+  },
+  "pattern": [
+    " e ",
+    "bab",
+    " h "
+  ],
+  "result": {
+    "id": "landsutilities:auto_anvil"
+  }
+}

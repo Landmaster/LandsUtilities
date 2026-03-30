@@ -1,9 +1,12 @@
 package com.landmaster.landsutilities.data;
 
 import com.landmaster.landsutilities.LandsUtilities;
+import com.landmaster.landsutilities.util.Util;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -48,10 +51,33 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_ender_eye", has(Items.ENDER_EYE))
                 .save(output);
 
+        shaped(
+                RecipeCategory.MISC, LandsUtilities.XP_COLLECTOR
+        )
+                .define('e', Items.EXPERIENCE_BOTTLE)
+                .define('b', Items.BUCKET)
+                .define('o', Tags.Items.OBSIDIANS_NORMAL)
+                .pattern(" e ")
+                .pattern("obo")
+                .unlockedBy("has_experience_bottle", has(Items.EXPERIENCE_BOTTLE))
+                .save(output);
+
+        shaped(
+                RecipeCategory.MISC, LandsUtilities.XP_INTERFACE
+        )
+                .define('e', Items.EXPERIENCE_BOTTLE)
+                .define('d', Tags.Items.GEMS_DIAMOND)
+                .define('p', Tags.Items.GEMS_PRISMARINE)
+                .pattern("pdp")
+                .pattern("ded")
+                .pattern("pdp")
+                .unlockedBy("has_experience_bottle", has(Items.EXPERIENCE_BOTTLE))
+                .save(output);
+
         shapeless(RecipeCategory.MISC, LandsUtilities.REMOTE_CONTROL)
                 .requires(LandsUtilities.REMOTE_CONTROL)
                 .unlockedBy("has_remote_control", has(LandsUtilities.REMOTE_CONTROL))
-                .save(output, "remote_control_reset");
+                .save(output, ResourceKey.create(Registries.RECIPE, Util.loc("remote_control_reset")));
 
         shaped(
                 RecipeCategory.REDSTONE, LandsUtilities.REDSTONE_WAND
@@ -62,6 +88,36 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern(" c ")
                 .pattern("c  ")
                 .unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE))
+                .save(output);
+
+        shaped(RecipeCategory.MISC, LandsUtilities.CAPACITY_UPGRADES.get(0))
+                .define('i', Tags.Items.INGOTS_IRON)
+                .define('c', Tags.Items.INGOTS_COPPER)
+                .define('b', Items.BUCKET)
+                .pattern("cic")
+                .pattern("ibi")
+                .pattern("cic")
+                .unlockedBy("has_bucket", has(Items.BUCKET))
+                .save(output);
+
+        shaped(RecipeCategory.MISC, LandsUtilities.CAPACITY_UPGRADES.get(1))
+                .define('g', Tags.Items.INGOTS_GOLD)
+                .define('a', Tags.Items.GEMS_AMETHYST)
+                .define('u', LandsUtilities.CAPACITY_UPGRADES.get(0))
+                .pattern("aga")
+                .pattern("gug")
+                .pattern("aga")
+                .unlockedBy("has_capacity_upgrade", has(LandsUtilities.CAPACITY_UPGRADES.get(0)))
+                .save(output);
+
+        shaped(RecipeCategory.MISC, LandsUtilities.CAPACITY_UPGRADES.get(2))
+                .define('d', Tags.Items.GEMS_DIAMOND)
+                .define('p', Tags.Items.GEMS_PRISMARINE)
+                .define('u', LandsUtilities.CAPACITY_UPGRADES.get(1))
+                .pattern("pdp")
+                .pattern("dud")
+                .pattern("pdp")
+                .unlockedBy("has_capacity_upgrade", has(LandsUtilities.CAPACITY_UPGRADES.get(1)))
                 .save(output);
     }
 
@@ -86,7 +142,7 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent.Server event) {
+    public static void gatherData(GatherDataEvent.Client event) {
         event.createProvider(Runner::new);
     }
 }

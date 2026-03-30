@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "#c:gems/amethyst",
+    "g": "#c:ingots/gold",
+    "u": "landsutilities:capacity_upgrade_1"
+  },
+  "pattern": [
+    "aga",
+    "gug",
+    "aga"
+  ],
+  "result": {
+    "id": "landsutilities:capacity_upgrade_2"
+  }
+}

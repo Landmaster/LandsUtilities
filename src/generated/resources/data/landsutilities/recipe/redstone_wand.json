@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "c": "#c:obsidians/crying",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "  r",
+    " c ",
+    "c  "
+  ],
+  "result": {
+    "id": "landsutilities:redstone_wand"
+  }
+}

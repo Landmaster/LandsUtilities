@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "#c:gems/diamond",
+    "p": "#c:gems/prismarine",
+    "u": "landsutilities:capacity_upgrade_2"
+  },
+  "pattern": [
+    "pdp",
+    "dud",
+    "pdp"
+  ],
+  "result": {
+    "id": "landsutilities:capacity_upgrade_3"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "minecraft:bucket",
+    "e": "minecraft:experience_bottle",
+    "o": "#c:obsidians/normal"
+  },
+  "pattern": [
+    " e ",
+    "obo"
+  ],
+  "result": {
+    "id": "landsutilities:xp_collector"
+  }
+}

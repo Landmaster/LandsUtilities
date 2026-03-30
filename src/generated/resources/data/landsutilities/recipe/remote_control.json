@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "#minecraft:stone_buttons",
+    "e": "minecraft:ender_eye",
+    "i": "#c:ingots/copper"
+  },
+  "pattern": [
+    "iei",
+    "ibi",
+    "ibi"
+  ],
+  "result": {
+    "id": "landsutilities:remote_control"
+  }
+}

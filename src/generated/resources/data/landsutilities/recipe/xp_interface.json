@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "#c:gems/diamond",
+    "e": "minecraft:experience_bottle",
+    "p": "#c:gems/prismarine"
+  },
+  "pattern": [
+    "pdp",
+    "ded",
+    "pdp"
+  ],
+  "result": {
+    "id": "landsutilities:xp_interface"
+  }
+}
