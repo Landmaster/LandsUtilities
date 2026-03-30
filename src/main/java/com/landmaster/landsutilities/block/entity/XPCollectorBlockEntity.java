@@ -6,7 +6,6 @@ import com.landmaster.landsutilities.menu.XPCollectorMenu;
 import com.landmaster.landsutilities.util.SyncInfo;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -68,12 +67,6 @@ public class XPCollectorBlockEntity extends BaseBlockEntity implements MenuProvi
                 }
             }
         }
-    }
-
-    @Override
-    @Nonnull
-    public Component getDisplayName() {
-        return LandsUtilities.XP_COLLECTOR.get().getName();
     }
 
     @Override

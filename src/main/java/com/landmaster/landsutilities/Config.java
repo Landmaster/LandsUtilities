@@ -37,6 +37,20 @@ public class Config {
             .comment("Maximum offset in blocks of XP Collector")
             .defineInRange("xpCollectorMaxOffset", 5, 1, 200);
 
+    public static final ModConfigSpec.ConfigValue<List<? extends Integer>> XP_INTERFACE_STORAGE = BUILDER
+            .comment("XP interface capacity in mB. First element is base amount, subsequent elements are in increasing order of capacity upgrade level.")
+            .defineList(
+                    "",
+                    List.of(1000000, 10000000, 100000000, 1000000000),
+                    () -> 1000000,
+                    val -> val instanceof Integer intVal && intVal > 0
+            );
+
+    public static int levelToValue(ModConfigSpec.ConfigValue<List<? extends Integer>> cfg, int level) {
+        var list = cfg.get();
+        return list.get(Math.clamp(level, 0, list.size() - 1));
+    }
+
     public static boolean offsetInRange(byte offset) {
         return offset >= -XP_COLLECTOR_MAX_OFFSET.get() && offset <= XP_COLLECTOR_MAX_OFFSET.get();
     }

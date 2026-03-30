@@ -13,8 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
@@ -100,6 +102,20 @@ public class Util {
     public static void initFromList(Container cont, List<ItemStack> stacks) {
         for (int i=0; i<cont.getContainerSize(); ++i) {
             cont.setItem(i, stacks.get(i));
+        }
+    }
+
+    public static Item createUpgradeItem(Identifier name, UpgradeInfo upgradeInfo) {
+        return new Item(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, name)).component(LandsUtilities.UPGRADE_INFO, upgradeInfo));
+    }
+
+    public static Component formatBucketValue(int amount) {
+        if (amount < 100000) {
+            return Component.literal(String.format("%d mB", amount));
+        } else if (amount < 10000000) {
+            return Component.literal(String.format("%.1f B", amount / 1000.0));
+        } else {
+            return Component.literal(String.format("%.1f kB", amount / 1000000.0));
         }
     }
 }

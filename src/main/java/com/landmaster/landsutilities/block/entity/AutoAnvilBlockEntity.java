@@ -187,12 +187,6 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
         output.putChild("resultItem", resultHandler);
     }
 
-    @Nonnull
-    @Override
-    public Component getDisplayName() {
-        return LandsUtilities.AUTO_ANVIL.get().getName();
-    }
-
     @Override
     public @Nullable AbstractContainerMenu createMenu(int i, @Nonnull Inventory inventory, @Nonnull Player player) {
         return new AutoAnvilMenu(i, inventory, this);

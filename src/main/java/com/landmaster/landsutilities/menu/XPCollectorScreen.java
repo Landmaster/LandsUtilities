@@ -21,6 +21,7 @@ public class XPCollectorScreen extends AbstractContainerScreen<XPCollectorMenu> 
     @Override
     protected void init() {
         super.init();
+        // TODO add redstone config
         for (int id = 0; id < 4; ++id) {
             addRenderableWidget(new IncrementalAdjustButton(leftPos + 70, topPos + 16 + id * 14, menu.blockEntity(), id, true));
             addRenderableWidget(new IncrementalAdjustButton(leftPos + 100, topPos + 16 + id * 14, menu.blockEntity(), id, false));

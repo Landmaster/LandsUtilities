@@ -13,7 +13,7 @@ import java.util.Set;
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RegisterLootTables {
     @SubscribeEvent
-    private static void gatherData(GatherDataEvent.Server event) {
+    private static void gatherData(GatherDataEvent.Client event) {
         event.createProvider((output, lookupProvider) -> new LootTableProvider(
                 output,
                 Set.of(),

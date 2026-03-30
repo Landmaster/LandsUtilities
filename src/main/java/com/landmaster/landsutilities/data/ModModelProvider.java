@@ -27,10 +27,14 @@ public class ModModelProvider extends ModelProvider {
     protected void registerModels(@Nonnull BlockModelGenerators blockModels, @Nonnull ItemModelGenerators itemModels) {
         blockModels.createNonTemplateModelBlock(LandsUtilities.FLUID_XP_BLOCK.get());
         blockModels.createRotatableColumn(LandsUtilities.XP_COLLECTOR.get());
+        blockModels.createTrivialCube(LandsUtilities.XP_INTERFACE.get());
 
         itemModels.generateFlatItem(LandsUtilities.REMOTE_CONTROL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(LandsUtilities.REDSTONE_WAND.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(LandsUtilities.FLUID_XP_BUCKET.get(), ModelTemplates.FLAT_ITEM);
+        for (var capacityUpgrade: LandsUtilities.CAPACITY_UPGRADES) {
+            itemModels.generateFlatItem(capacityUpgrade.get(), ModelTemplates.FLAT_ITEM);
+        }
     }
 
     @SubscribeEvent
@@ -41,6 +45,7 @@ public class ModModelProvider extends ModelProvider {
     @Override
     @Nonnull
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
+        // Auto-Anvil is not currently data-genned
         return super.getKnownBlocks().filter(block -> block.value() != LandsUtilities.AUTO_ANVIL.get());
     }
 }

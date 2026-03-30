@@ -2,8 +2,10 @@ package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.block.AutoAnvilBlock;
 import com.landmaster.landsutilities.block.XPCollectorBlock;
+import com.landmaster.landsutilities.block.XPInterfaceBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
 import com.landmaster.landsutilities.block.entity.XPCollectorBlockEntity;
+import com.landmaster.landsutilities.block.entity.XPInterfaceBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
 import com.landmaster.landsutilities.item.ModBlockItem;
@@ -12,9 +14,11 @@ import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
 import com.landmaster.landsutilities.menu.ModContainerMenu;
 import com.landmaster.landsutilities.menu.XPCollectorMenu;
+import com.landmaster.landsutilities.menu.XPInterfaceMenu;
 import com.landmaster.landsutilities.network.*;
 import com.landmaster.landsutilities.util.RedstoneWandState;
 import com.landmaster.landsutilities.util.RemoteControlLink;
+import com.landmaster.landsutilities.util.UpgradeInfo;
 import com.landmaster.landsutilities.util.Util;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -26,10 +30,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -58,6 +59,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(LandsUtilities.MODID)
@@ -104,6 +106,11 @@ public class LandsUtilities {
                     .persistent(RedstoneWandState.Type.CODEC)
                     .networkSynchronized(RedstoneWandState.Type.STREAM_CODEC)
     );
+    public static final Supplier<DataComponentType<UpgradeInfo>> UPGRADE_INFO = DATA_COMPONENTS.registerComponentType(
+            "upgrade_info", builder -> builder
+                    .persistent(UpgradeInfo.CODEC)
+                    .networkSynchronized(UpgradeInfo.STREAM_CODEC)
+    );
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             props -> props.noOcclusion());
@@ -117,20 +124,33 @@ public class LandsUtilities {
             "xp_collector", props -> new ModBlockItem(XP_COLLECTOR.get(), props)
     );
 
+    public static final DeferredBlock<XPInterfaceBlock> XP_INTERFACE = BLOCKS.registerBlock("xp_interface", XPInterfaceBlock::new);
+    public static final DeferredItem<ModBlockItem> XP_INTERFACE_ITEM = ITEMS.registerItem(
+            "xp_interface", props -> new ModBlockItem(XP_INTERFACE.get(), props)
+    );
+
     public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
             props -> props.stacksTo(1).enchantable(10));
     public static final DeferredItem<RedstoneWandItem> REDSTONE_WAND = ITEMS.registerItem("redstone_wand", RedstoneWandItem::new,
             props -> props.stacksTo(1));
 
+    public static final List<DeferredItem<Item>> CAPACITY_UPGRADES = IntStream.rangeClosed(1, 3)
+            .mapToObj(i -> ITEMS.register("capacity_upgrade_" + i, name -> Util.createUpgradeItem(name, new UpgradeInfo("capacity", i))))
+            .toList();
+
     public static final Supplier<BlockEntityType<AutoAnvilBlockEntity>> AUTO_ANVIL_TE = BLOCK_ENTITIES.register("auto_anvil",
             () -> new BlockEntityType<>(AutoAnvilBlockEntity::new, AUTO_ANVIL.get()));
     public static final Supplier<BlockEntityType<XPCollectorBlockEntity>> XP_COLLECTOR_TE = BLOCK_ENTITIES.register("xp_collector",
             () -> new BlockEntityType<>(XPCollectorBlockEntity::new, XP_COLLECTOR.get()));
+    public static final Supplier<BlockEntityType<XPInterfaceBlockEntity>> XP_INTERFACE_TE = BLOCK_ENTITIES.register("xp_interface",
+            () -> new BlockEntityType<>(XPInterfaceBlockEntity::new, XP_INTERFACE.get()));
 
     public static final Supplier<MenuType<AutoAnvilMenu>> AUTO_ANVIL_MENU = MENU_TYPES.register("auto_anvil",
             () -> ModContainerMenu.createMenuType(AutoAnvilMenu::new, AUTO_ANVIL_TE.get()));
     public static final Supplier<MenuType<XPCollectorMenu>> XP_COLLECTOR_MENU = MENU_TYPES.register("xp_collector",
             () -> ModContainerMenu.createMenuType(XPCollectorMenu::new, XP_COLLECTOR_TE.get()));
+    public static final Supplier<MenuType<XPInterfaceMenu>> XP_INTERFACE_MENU = MENU_TYPES.register("xp_interface",
+            () -> ModContainerMenu.createMenuType(XPInterfaceMenu::new, XP_INTERFACE_TE.get()));
 
     public static final Supplier<AttachmentType<Long2ObjectMap<RedstoneWandState>>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
@@ -142,7 +162,6 @@ public class LandsUtilities {
     public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> REMOTE_RANGE = ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
             "remote_range", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC).listOf())
     );
-
     public static final Supplier<DataComponentType<List<ConditionalEffect<EnchantmentValueEffect>>>> REMOTE_CONTROL_CAPACITY = ENCHANTMENT_COMPONENT_TYPES.registerComponentType(
             "remote_control_capacity", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC).listOf())
     );
@@ -166,8 +185,10 @@ public class LandsUtilities {
     });
 
     private static BaseFlowingFluid.Properties fluidXpProperties;
-    public static final Supplier<FlowingFluid> FLUID_XP_STILL = FLUIDS.register("fluid_xp", () -> new BaseFlowingFluid.Source(fluidXpProperties));
-    public static final Supplier<FlowingFluid> FLUID_XP_FLOWING = FLUIDS.register("fluid_xp_flowing", () -> new BaseFlowingFluid.Flowing(fluidXpProperties));
+    public static final DeferredHolder<Fluid, FlowingFluid> FLUID_XP_STILL = FLUIDS.register("fluid_xp",
+            () -> new BaseFlowingFluid.Source(fluidXpProperties));
+    public static final DeferredHolder<Fluid, FlowingFluid> FLUID_XP_FLOWING = FLUIDS.register("fluid_xp_flowing",
+            () -> new BaseFlowingFluid.Flowing(fluidXpProperties));
 
     public static final DeferredBlock<LiquidBlock> FLUID_XP_BLOCK = BLOCKS.registerBlock(
             "fluid_xp",
@@ -196,6 +217,8 @@ public class LandsUtilities {
                         out.accept(REDSTONE_WAND);
                         out.accept(FLUID_XP_BUCKET);
                         out.accept(XP_COLLECTOR);
+                        out.accept(XP_INTERFACE);
+                        out.acceptAll(CAPACITY_UPGRADES.stream().map(DeferredItem::toStack).toList());
                     })
                     .build());
 
@@ -222,11 +245,14 @@ public class LandsUtilities {
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
         registrar.playToClient(RemoteAdvancedMenuPacket.TYPE, RemoteAdvancedMenuPacket.STREAM_CODEC, RemoteAdvancedMenuPacket::handle);
         registrar.playToClient(RemoteMenuPacket.TYPE, RemoteMenuPacket.STREAM_CODEC, RemoteMenuPacket::handle);
+        registrar.playToClient(SyncXPInterfacePacket.TYPE, SyncXPInterfacePacket.STREAM_CODEC, SyncXPInterfacePacket::handle);
+        registrar.playToServer(RequestXPInterfacePacket.TYPE, RequestXPInterfacePacket.STREAM_CODEC, RequestXPInterfacePacket::handle);
     }
 
     @SubscribeEvent
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, AUTO_ANVIL_TE.get(), (te, dir) -> te.automationItemHandler());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, XP_INTERFACE_TE.get(), (te, dir) -> te.fluidHandler());
     }
 
     @SubscribeEvent

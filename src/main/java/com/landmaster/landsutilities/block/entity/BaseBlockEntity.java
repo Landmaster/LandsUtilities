@@ -12,6 +12,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.ProblemReporter;
@@ -95,5 +96,10 @@ public abstract class BaseBlockEntity extends BlockEntity {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), cap.getResource(i).toStack(cap.getAmountAsInt(i)));
             }
         }
+    }
+
+    @Nonnull
+    public Component getDisplayName() {
+        return getBlockState().getBlock().getName();
     }
 }
