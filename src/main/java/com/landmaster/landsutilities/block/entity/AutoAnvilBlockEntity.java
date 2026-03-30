@@ -69,13 +69,16 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     }
 
     protected ResourceHandler<ItemResource> computeInputItems() {
-        return level != null && level.isClientSide() ? new ItemStacksResourceHandler(2) {
-            @Override
-            protected void onContentsChanged(int index, ItemStack previousContents) {
-                super.onContentsChanged(index, previousContents);
-                setChanged();
-            }
-        } : VanillaContainerWrapper.of(resultGenerator().inputSlots);
+        if (level != null && level.isClientSide()) {
+            return new ItemStacksResourceHandler(2) {
+                @Override
+                protected void onContentsChanged(int index, ItemStack previousContents) {
+                    super.onContentsChanged(index, previousContents);
+                    setChanged();
+                }
+            };
+        }
+        return VanillaContainerWrapper.of(resultGenerator().inputSlots);
     }
 
     protected AnvilMenu computeResultGenerator() {
@@ -187,16 +190,19 @@ public class AutoAnvilBlockEntity extends BaseBlockEntity implements MenuProvide
     @Override
     protected void loadAdditional(@Nonnull ValueInput input) {
         super.loadAdditional(input);
-        loadedItems = input.read("inputItems", ItemStack.OPTIONAL_CODEC.listOf()).get();
+        loadedItems = input.read("inputItems", ItemStack.OPTIONAL_CODEC.listOf(2, 2)).get();
+        if (level instanceof ServerLevel) {
+            Util.initFromList(resultGenerator().inputSlots, loadedItems);
+            loadedItems = null;
+        }
         input.readChild("resultItem", resultHandler);
     }
 
     @Override
     protected void saveAdditional(@Nonnull ValueOutput output) {
         super.saveAdditional(output);
-        output.store("inputItems", ItemStack.OPTIONAL_CODEC.listOf(), Arrays.asList(
-                level instanceof ServerLevel ? Util.toArray(resultGenerator().inputSlots) : Util.toArray(inputItems())
-        ));
+        var toStore = Arrays.asList(level instanceof ServerLevel ? Util.toArray(resultGenerator().inputSlots) : Util.toArray(inputItems()));
+        output.store("inputItems", ItemStack.OPTIONAL_CODEC.listOf(2, 2), toStore);
         output.putChild("resultItem", resultHandler);
     }
 

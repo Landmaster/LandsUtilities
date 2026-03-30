@@ -35,8 +35,8 @@
   "landing_text.landsutilities.landsutilities_guide": "A guide on the various contraptions that Land's Utilities offers",
   "landsutilities.configuration.maxLinkedBlocks": "Remote Maximum Linked Blocks",
   "landsutilities.configuration.remoteControlBlacklist": "Remote Control Blacklist",
-  "landsutilities.configuration.xpCollectorRadius": "XP Collector Max Radius",
   "landsutilities.configuration.xpCollectorMaxOffset": "XP Collector Max Offset",
+  "landsutilities.configuration.xpCollectorRadius": "XP Collector Max Radius",
   "landsutilities.configuration.xpCollectorTickCount": "XP Collector Tick Rate",
   "landsutilities.configuration.xpInterfaceCapacity": "XP Interface Capacities",
   "message.landsutilities.empty_remote_control": "Remote control has no linked blocks!",
@@ -53,6 +53,13 @@
   "tooltip.landsutilities.redstone_wand.type.always_on": "Always-On",
   "tooltip.landsutilities.redstone_wand.type.button": "Button",
   "tooltip.landsutilities.redstone_wand.type.lever": "Lever",
-  "tooltip.landsutilities.remote_control": "Allows remotely accessing menus from blocks. See Patchouli docs",
-  "upgrade.landsutilities.capacity": "Capacity Upgrade"
+  "tooltip.landsutilities.remote_control.0": "Allows remotely accessing menus from blocks, range and max stored blocks can be increased with enchants.",
+  "tooltip.landsutilities.remote_control.1": "Shift-right-click to add block to remote",
+  "tooltip.landsutilities.remote_control.2": "Shift-scroll to toggle between blocks",
+  "tooltip.landsutilities.remote_control.3": "Right-click to open menu of selected block",
+  "tooltip.landsutilities.remote_control.4": "Use /landutilities rename_link <new name> to label the selected block",
+  "tooltip.landsutilities.remote_control.5": "Use /landutilities delete_link to remove the selected block from the remote",
+  "tooltip.landsutilities.xp_interface": "Acts like a fluid XP tank; the player can also load/store XP levels into it.",
+  "upgrade.landsutilities.capacity": "Capacity Upgrade",
+  "tooltip.landsutilities.contents_saved": "Contents saved!"
 }

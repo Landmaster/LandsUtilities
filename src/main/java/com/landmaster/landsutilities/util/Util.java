@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -110,8 +111,14 @@ public class Util {
     }
 
     public static void initFromList(Container cont, List<ItemStack> stacks) {
-        for (int i=0; i<cont.getContainerSize(); ++i) {
+        for (int i=0; i<Math.min(cont.getContainerSize(), stacks.size()); ++i) {
             cont.setItem(i, stacks.get(i));
+        }
+    }
+
+    public static void initFromList(ItemStacksResourceHandler handler, List<ItemStack> stacks) {
+        for (int i=0; i<Math.min(handler.size(), stacks.size()); ++i) {
+            handler.set(i, ItemResource.of(stacks.get(i)), stacks.get(i).count());
         }
     }
 

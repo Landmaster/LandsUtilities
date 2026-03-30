@@ -3,34 +3,25 @@ package com.landmaster.landsutilities.block.entity;
 import com.landmaster.landsutilities.util.RedstoneConfig;
 import com.landmaster.landsutilities.util.SyncInfo;
 import com.landmaster.landsutilities.util.SyncMap;
-import com.mojang.serialization.Codec;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.util.ExtraCodecs;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.Containers;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 public abstract class BaseBlockEntity extends BlockEntity {
     @Getter
@@ -60,10 +51,6 @@ public abstract class BaseBlockEntity extends BlockEntity {
         output.store("redstoneConfig", RedstoneConfig.CODEC, redstoneConfig);
     }
 
-    protected static RegistryOps<Tag> registryOps(HolderLookup.Provider registries) {
-        return RegistryOps.create(NbtOps.INSTANCE, registries);
-    }
-
     @Nonnull
     @Override
     public CompoundTag getUpdateTag(@Nonnull HolderLookup.Provider registries) {
@@ -75,6 +62,11 @@ public abstract class BaseBlockEntity extends BlockEntity {
         return output.buildResult();
     }
 
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
     public void tick() {
         switch (redstoneConfig) {
             case IGNORE:
@@ -84,17 +76,6 @@ public abstract class BaseBlockEntity extends BlockEntity {
             case HIGH:
                 active = level.hasNeighborSignal(worldPosition) == (redstoneConfig == RedstoneConfig.HIGH);
                 break;
-        }
-    }
-
-    @Override
-    public void preRemoveSideEffects(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-        super.preRemoveSideEffects(pos, state);
-        var cap = level.getCapability(Capabilities.Item.BLOCK, pos, state, this, null);
-        if (cap != null) {
-            for (int i=0; i<cap.size(); ++i) {
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), cap.getResource(i).toStack(cap.getAmountAsInt(i)));
-            }
         }
     }
 

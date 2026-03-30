@@ -86,7 +86,9 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
     @SuppressWarnings("deprecation")
     @Override
     public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull Item.TooltipContext context, @Nonnull TooltipDisplay display, @Nonnull Consumer<Component> builder, @Nonnull TooltipFlag tooltipFlag) {
-        builder.accept(Component.translatable("tooltip.landsutilities.remote_control").withStyle(ChatFormatting.AQUA));
+        for (int i=0; i<6; ++i) {
+            builder.accept(Component.translatable("tooltip.landsutilities.remote_control." + i).withStyle(ChatFormatting.AQUA));
+        }
 
         var linkedBlocks = itemStack.getOrDefault(LandsUtilities.LINKED_MENU_BLOCKS, List.<RemoteControlLink>of());
         builder.accept(Component.translatable("tooltip.landsutilities.linked_remote.amount", linkedBlocks.size()).withStyle(ChatFormatting.YELLOW));
