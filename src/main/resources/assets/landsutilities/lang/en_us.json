@@ -61,5 +61,6 @@
   "tooltip.landsutilities.remote_control.5": "Use /landutilities delete_link to remove the selected block from the remote",
   "tooltip.landsutilities.xp_interface": "Acts like a fluid XP tank; the player can also load/store XP levels into it.",
   "upgrade.landsutilities.capacity": "Capacity Upgrade",
-  "tooltip.landsutilities.contents_saved": "Contents saved!"
+  "tooltip.landsutilities.contents_saved": "Contents saved!",
+  "tooltip.landsutilities.xp_collector": "Collects XP orbs and stores them as fluid XP to the connected tank"
 }

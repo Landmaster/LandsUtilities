@@ -3,8 +3,14 @@ package com.landmaster.landsutilities.block;
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.block.entity.XPCollectorBlockEntity;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -22,10 +28,11 @@ import org.jspecify.annotations.Nullable;
 import javax.annotation.Nonnull;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
 
-public class XPCollectorBlock extends FunctionalBlock<XPCollectorBlockEntity> implements DisplayRangeBlock {
+public class XPCollectorBlock extends FunctionalBlock<XPCollectorBlockEntity> implements DisplayRangeBlock, TooltipBlock {
     private static final MapCodec<XPCollectorBlock> CODEC = simpleCodec(XPCollectorBlock::new);
 
     private static final Map<Direction, VoxelShape> SHAPES = Shapes.rotateAll(Shapes.or(
@@ -72,5 +79,10 @@ public class XPCollectorBlock extends FunctionalBlock<XPCollectorBlockEntity> im
             return blockEntity.getRange();
         }
         return null;
+    }
+
+    @Override
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull Item.TooltipContext context, @Nonnull TooltipDisplay display, @Nonnull Consumer<Component> builder, @Nonnull TooltipFlag tooltipFlag) {
+        builder.accept(Component.translatable("tooltip.landsutilities.xp_collector").withStyle(ChatFormatting.AQUA));
     }
 }
