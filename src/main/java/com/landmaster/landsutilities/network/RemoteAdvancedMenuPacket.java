@@ -6,6 +6,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.payload.AdvancedOpenScreenPayload;
 
@@ -28,9 +30,14 @@ public record RemoteAdvancedMenuPacket(float range, AdvancedOpenScreenPayload op
 
     static {
         try {
-            CLIENT_PAYLOAD_HANDLER = Class.forName("net.neoforged.neoforge.client.network.ClientPayloadHandler");
-            CLIENT_PAYLOAD_HANDLER_HANDLE = CLIENT_PAYLOAD_HANDLER.getDeclaredMethod(
-                    "handle", AdvancedOpenScreenPayload.class, IPayloadContext.class);
+            if (FMLEnvironment.getDist() == Dist.CLIENT) {
+                CLIENT_PAYLOAD_HANDLER = Class.forName("net.neoforged.neoforge.client.network.ClientPayloadHandler");
+                CLIENT_PAYLOAD_HANDLER_HANDLE = CLIENT_PAYLOAD_HANDLER.getDeclaredMethod(
+                        "handle", AdvancedOpenScreenPayload.class, IPayloadContext.class);
+            } else {
+                CLIENT_PAYLOAD_HANDLER = null;
+                CLIENT_PAYLOAD_HANDLER_HANDLE = null;
+            }
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
