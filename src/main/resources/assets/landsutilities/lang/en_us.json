@@ -68,5 +68,6 @@
   "tooltip.landsutilities.xp_collector": "Collects XP orbs and stores them as fluid XP to the connected tank",
   "tooltip.landsutilities.xp_interface": "Acts like a fluid XP tank; the player can also load/store XP levels into it.",
   "upgrade.landsutilities.capacity": "Capacity Upgrade",
-  "gui.landsutilities.offset": "Offset"
+  "gui.landsutilities.offset": "Offset",
+  "tooltip.landsutilities.block_interfacer": "Simulates left/right clicking at a location in range"
 }

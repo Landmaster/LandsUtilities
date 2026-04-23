@@ -2,6 +2,7 @@ package com.landmaster.landsutilities.menu;
 
 import com.landmaster.landsutilities.menu.widget.CycleValueButton;
 import com.landmaster.landsutilities.menu.widget.IncrementalAdjustButton;
+import com.landmaster.landsutilities.menu.widget.RedstoneConfigButton;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -36,6 +37,8 @@ public class BlockInterfacerScreen extends ModContainerScreen<BlockInterfacerMen
         addRenderableWidget(new IncrementalAdjustButton(leftPos + 142, topPos + 44, menu.blockEntity(), 1, false));
         addRenderableWidget(new IncrementalAdjustButton(leftPos + 112, topPos + 58, menu.blockEntity(), 2, true));
         addRenderableWidget(new IncrementalAdjustButton(leftPos + 142, topPos + 58, menu.blockEntity(), 2, false));
+
+        addRenderableWidget(new RedstoneConfigButton(leftPos + 155, topPos + 5, menu.blockEntity()));
     }
 
     @Override
