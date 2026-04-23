@@ -20,7 +20,7 @@ public abstract class ModContainerMenu<T extends BaseBlockEntity> extends Abstra
     @Nullable
     private final T blockEntity;
 
-    protected ModContainerMenu(@Nullable MenuType<?> menuType, int containerId, T blockEntity) {
+    public ModContainerMenu(@Nullable MenuType<?> menuType, int containerId, @Nullable T blockEntity) {
         super(menuType, containerId);
         this.blockEntity = blockEntity;
     }

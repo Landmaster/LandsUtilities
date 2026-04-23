@@ -28,9 +28,9 @@ public class XPCollectorBlockEntity extends BaseBlockEntity implements MenuProvi
     public XPCollectorBlockEntity(BlockPos pos, BlockState blockState) {
         super(LandsUtilities.XP_COLLECTOR_TE.get(), pos, blockState,
                 new SyncInfo<>("radius", Codec.BYTE, ByteBufCodecs.BYTE, (byte)Config.XP_COLLECTOR_RADIUS.getAsInt(), v -> 1 <= v && v <= Config.XP_COLLECTOR_RADIUS.getAsInt()),
-                new SyncInfo<>("offsetX", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::offsetInRange),
-                new SyncInfo<>("offsetY", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::offsetInRange),
-                new SyncInfo<>("offsetZ", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::offsetInRange)
+                new SyncInfo<>("offsetX", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::xpCollectorOffsetInRange),
+                new SyncInfo<>("offsetY", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::xpCollectorOffsetInRange),
+                new SyncInfo<>("offsetZ", Codec.BYTE, ByteBufCodecs.BYTE, (byte)0, Config::xpCollectorOffsetInRange)
         );
     }
 

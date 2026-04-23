@@ -1,10 +1,11 @@
 package com.landmaster.landsutilities.menu;
 
-import com.landmaster.landsutilities.menu.widget.IOConfigButton;
+import com.landmaster.landsutilities.menu.widget.CycleValueButton;
 import com.landmaster.landsutilities.menu.widget.RedstoneConfigButton;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,7 +22,8 @@ public class AutoAnvilScreen extends ModContainerScreen<AutoAnvilMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new IOConfigButton(leftPos+80, topPos+6, 90, 14, menu.blockEntity(), 0, false, "gui.landsutilities.config.external_tank"));
+        addRenderableWidget(new CycleValueButton(leftPos+80, topPos+6, 90, 14, menu.blockEntity(), 0,
+                dir -> Component.translatable("gui.landsutilities.config.external_tank", Util.directionToComponent((Direction) dir))));
         addRenderableWidget(new RedstoneConfigButton(leftPos+156, topPos+20, menu.blockEntity()));
     }
 

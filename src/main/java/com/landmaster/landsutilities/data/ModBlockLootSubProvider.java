@@ -27,5 +27,6 @@ public class ModBlockLootSubProvider extends BlockLootSubProvider {
         dropSelf(LandsUtilities.AUTO_ANVIL.get());
         dropSelf(LandsUtilities.XP_COLLECTOR.get());
         dropSelf(LandsUtilities.XP_INTERFACE.get());
+        dropSelf(LandsUtilities.BLOCK_INTERFACER.get());
     }
 }

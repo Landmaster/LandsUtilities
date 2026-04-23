@@ -1,4 +1,5 @@
-// 26.1	2026-03-29T20:15:16.732839397	Loot Tables
+// 26.1.2	2026-04-22T19:30:35.998249727	Loot Tables
 8060156ec50c085de17d75ffdf7842fb8b69c77a data/landsutilities/loot_table/blocks/auto_anvil.json
+7968997c8b105f700bc4134d6507e37c7acd84ca data/landsutilities/loot_table/blocks/block_interfacer.json
 a21e330da90d36dc1d4b9d992d449fd4d49e7352 data/landsutilities/loot_table/blocks/xp_collector.json
 f5073d0132315d1e53b22d4501d3f5ab6890de4d data/landsutilities/loot_table/blocks/xp_interface.json

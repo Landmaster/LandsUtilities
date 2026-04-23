@@ -1,5 +1,6 @@
 {
   "block.landsutilities.auto_anvil": "Auto Anvil",
+  "block.landsutilities.block_interfacer": "Block Interfacer",
   "block.landsutilities.fluid_xp": "Fluid XP",
   "block.landsutilities.xp_collector": "XP Collector",
   "block.landsutilities.xp_interface": "XP Interface",
@@ -14,6 +15,8 @@
   "gui.landsutilities.direction.up": "Up",
   "gui.landsutilities.direction.west": "West",
   "gui.landsutilities.grant_xp": "Grant %d level(s)",
+  "gui.landsutilities.left_click.true": "Left-Click",
+  "gui.landsutilities.left_click.false": "Right-Click",
   "gui.landsutilities.offset.x": "Offset X",
   "gui.landsutilities.offset.y": "Offset Y",
   "gui.landsutilities.offset.z": "Offset Z",
@@ -21,6 +24,8 @@
   "gui.landsutilities.redstone.high": "Active on Redstone High",
   "gui.landsutilities.redstone.ignore": "Ignore Redstone",
   "gui.landsutilities.redstone.low": "Active on Redstone Low",
+  "gui.landsutilities.sneak.true": "Sneak",
+  "gui.landsutilities.sneak.false": "No Sneak",
   "gui.landsutilities.store_xp": "Store %d level(s)",
   "gui.landsutilities.supported_upgrades": "Supported upgrades:",
   "gui.landsutilities.xp_amount": "Fluid XP: %s / %s",
@@ -48,6 +53,7 @@
   "message.landsutilities.renamed_link": "Renamed remote control link name to %s",
   "tab.landsutilities": "Land's Utilities",
   "tooltip.landsutilities.auto_anvil": "Just like a vanilla anvil but runs automatically using fluid experience from any mod. Note: Do NOT pipe fluid experience directly into the anvil; instead pipe it into an adjacent tank in the configured direction (by default, above the anvil).",
+  "tooltip.landsutilities.contents_saved": "Contents saved!",
   "tooltip.landsutilities.linked_remote.amount": "%d location(s) stored",
   "tooltip.landsutilities.redstone_wand": "Shift-scroll to cycle between modes; shift-right-click to make a block act like a redstone block/lever/button",
   "tooltip.landsutilities.redstone_wand.type.always_on": "Always-On",
@@ -59,8 +65,8 @@
   "tooltip.landsutilities.remote_control.3": "Right-click to open menu of selected block",
   "tooltip.landsutilities.remote_control.4": "Use /landutilities rename_link <new name> to label the selected block",
   "tooltip.landsutilities.remote_control.5": "Use /landutilities delete_link to remove the selected block from the remote",
+  "tooltip.landsutilities.xp_collector": "Collects XP orbs and stores them as fluid XP to the connected tank",
   "tooltip.landsutilities.xp_interface": "Acts like a fluid XP tank; the player can also load/store XP levels into it.",
   "upgrade.landsutilities.capacity": "Capacity Upgrade",
-  "tooltip.landsutilities.contents_saved": "Contents saved!",
-  "tooltip.landsutilities.xp_collector": "Collects XP orbs and stores them as fluid XP to the connected tank"
+  "gui.landsutilities.offset": "Offset"
 }

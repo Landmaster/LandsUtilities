@@ -28,6 +28,7 @@ public class ModModelProvider extends ModelProvider {
         blockModels.createNonTemplateModelBlock(LandsUtilities.FLUID_XP_BLOCK.get());
         blockModels.createRotatableColumn(LandsUtilities.XP_COLLECTOR.get());
         blockModels.createTrivialCube(LandsUtilities.XP_INTERFACE.get());
+        blockModels.createTrivialCube(LandsUtilities.BLOCK_INTERFACER.get());
 
         itemModels.generateFlatItem(LandsUtilities.REMOTE_CONTROL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(LandsUtilities.REDSTONE_WAND.get(), ModelTemplates.FLAT_HANDHELD_ITEM);

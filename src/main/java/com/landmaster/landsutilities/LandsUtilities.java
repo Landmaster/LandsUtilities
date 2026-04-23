@@ -1,9 +1,11 @@
 package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.block.AutoAnvilBlock;
+import com.landmaster.landsutilities.block.BlockInterfacerBlock;
 import com.landmaster.landsutilities.block.XPCollectorBlock;
 import com.landmaster.landsutilities.block.XPInterfaceBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
+import com.landmaster.landsutilities.block.entity.BlockInterfacerBlockEntity;
 import com.landmaster.landsutilities.block.entity.XPCollectorBlockEntity;
 import com.landmaster.landsutilities.block.entity.XPInterfaceBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
@@ -11,10 +13,7 @@ import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
 import com.landmaster.landsutilities.item.ModBlockItem;
 import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
-import com.landmaster.landsutilities.menu.AutoAnvilMenu;
-import com.landmaster.landsutilities.menu.ModContainerMenu;
-import com.landmaster.landsutilities.menu.XPCollectorMenu;
-import com.landmaster.landsutilities.menu.XPInterfaceMenu;
+import com.landmaster.landsutilities.menu.*;
 import com.landmaster.landsutilities.network.*;
 import com.landmaster.landsutilities.util.RedstoneWandState;
 import com.landmaster.landsutilities.util.RemoteControlLink;
@@ -146,6 +145,15 @@ public class LandsUtilities {
             "xp_interface", props -> new ModBlockItem(XP_INTERFACE.get(), props)
     );
 
+    public static final DeferredBlock<BlockInterfacerBlock> BLOCK_INTERFACER = BLOCKS.registerBlock("block_interfacer", BlockInterfacerBlock::new,
+            props -> props
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(1.0f));
+    public static final DeferredItem<ModBlockItem> BLOCK_INTERFACER_ITEM = ITEMS.registerItem(
+            "block_interfacer", props -> new ModBlockItem(BLOCK_INTERFACER.get(), props)
+    );
+
     public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
             props -> props.stacksTo(1).enchantable(10));
     public static final DeferredItem<RedstoneWandItem> REDSTONE_WAND = ITEMS.registerItem("redstone_wand", RedstoneWandItem::new,
@@ -161,6 +169,8 @@ public class LandsUtilities {
             () -> new BlockEntityType<>(XPCollectorBlockEntity::new, XP_COLLECTOR.get()));
     public static final Supplier<BlockEntityType<XPInterfaceBlockEntity>> XP_INTERFACE_TE = BLOCK_ENTITIES.register("xp_interface",
             () -> new BlockEntityType<>(XPInterfaceBlockEntity::new, XP_INTERFACE.get()));
+    public static final Supplier<BlockEntityType<BlockInterfacerBlockEntity>> BLOCK_INTERFACER_TE = BLOCK_ENTITIES.register("block_interfacer",
+            () -> new BlockEntityType<>(BlockInterfacerBlockEntity::new, BLOCK_INTERFACER.get()));
 
     public static final Supplier<MenuType<AutoAnvilMenu>> AUTO_ANVIL_MENU = MENU_TYPES.register("auto_anvil",
             () -> ModContainerMenu.createMenuType(AutoAnvilMenu::new, AUTO_ANVIL_TE.get()));
@@ -168,6 +178,8 @@ public class LandsUtilities {
             () -> ModContainerMenu.createMenuType(XPCollectorMenu::new, XP_COLLECTOR_TE.get()));
     public static final Supplier<MenuType<XPInterfaceMenu>> XP_INTERFACE_MENU = MENU_TYPES.register("xp_interface",
             () -> ModContainerMenu.createMenuType(XPInterfaceMenu::new, XP_INTERFACE_TE.get()));
+    public static final Supplier<MenuType<BlockInterfacerMenu>> BLOCK_INTERFACER_MENU = MENU_TYPES.register("block_interfacer",
+            () -> ModContainerMenu.createMenuType(BlockInterfacerMenu::new, BLOCK_INTERFACER_TE.get()));
 
     public static final Supplier<AttachmentType<Long2ObjectMap<RedstoneWandState>>> REDSTONE_WAND_ON_BLOCKS = ATTACHMENT_TYPES.register(
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
@@ -235,6 +247,7 @@ public class LandsUtilities {
                         out.accept(FLUID_XP_BUCKET);
                         out.accept(XP_COLLECTOR);
                         out.accept(XP_INTERFACE);
+                        out.accept(BLOCK_INTERFACER);
                         out.acceptAll(CAPACITY_UPGRADES.stream().map(DeferredItem::toStack).toList());
                     })
                     .build());
@@ -270,6 +283,7 @@ public class LandsUtilities {
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, AUTO_ANVIL_TE.get(), (te, dir) -> te.automationItemHandler());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, XP_INTERFACE_TE.get(), (te, dir) -> te.fluidHandler());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, BLOCK_INTERFACER_TE.get(), (te, dir) -> te.itemHandler());
     }
 
     @SubscribeEvent

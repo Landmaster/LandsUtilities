@@ -68,6 +68,16 @@ public class Util {
         return 90L * level2 - 3250L * level + 44400L;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T cycleValue(@Nonnull T value) {
+        if (value.getClass().isEnum()) {
+            return (T) cycleEnum((Enum<?>) value);
+        } else if (value instanceof Boolean) {
+            return (T) Boolean.valueOf(!((boolean) value));
+        }
+        throw new IllegalArgumentException("Cannot cycle value " + value + " of type " + value.getClass().getName());
+    }
+
     public static <T extends Enum<?>> @Nonnull T cycleEnum(@Nonnull T value) {
         return cycleEnum(value, false);
     }
@@ -76,15 +86,6 @@ public class Util {
     public static <T extends Enum<?>> @Nonnull T cycleEnum(@Nonnull T value, boolean reverse) {
         var values = value.getClass().getEnumConstants();
         return (T) values[(value.ordinal() + (reverse ? values.length-1 : 1)) % values.length];
-    }
-
-    public static @Nullable Direction cycleDirection(@Nullable Direction original, boolean allowNone) {
-        if (original == null) {
-            return Direction.DOWN;
-        } else if (original == Direction.EAST) {
-            return allowNone ? null : cycleDirection(null, true);
-        }
-        return cycleEnum(original);
     }
 
     public static Component directionToComponent(@Nullable Direction dir) {

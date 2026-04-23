@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "landsutilities:block/block_interfacer"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package com.landmaster.landsutilities;
 
 import com.landmaster.landsutilities.menu.AutoAnvilScreen;
+import com.landmaster.landsutilities.menu.BlockInterfacerScreen;
 import com.landmaster.landsutilities.menu.XPCollectorScreen;
 import com.landmaster.landsutilities.menu.XPInterfaceScreen;
 import com.landmaster.landsutilities.util.Util;
@@ -28,6 +29,7 @@ public class LandsUtilitiesClient {
         event.register(LandsUtilities.AUTO_ANVIL_MENU.get(), AutoAnvilScreen::new);
         event.register(LandsUtilities.XP_COLLECTOR_MENU.get(), XPCollectorScreen::new);
         event.register(LandsUtilities.XP_INTERFACE_MENU.get(), XPInterfaceScreen::new);
+        event.register(LandsUtilities.BLOCK_INTERFACER_MENU.get(), BlockInterfacerScreen::new);
     }
 
     @SubscribeEvent

@@ -74,7 +74,7 @@ public abstract class FunctionalBlock<T extends BaseBlockEntity> extends BaseEnt
     protected List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootParams.Builder params) {
         var drops = super.getDrops(state, params);
         var blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (blockEntity.getType() == blockEntityType.get()) {
+        if (blockEntity != null && blockEntity.getType() == blockEntityType.get()) {
             for (var drop: drops) {
                 if (drop.is(asItem())) {
                     addBlockDataToItem(params.getLevel(), blockEntity, drop);

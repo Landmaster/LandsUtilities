@@ -49,13 +49,21 @@ public class Config {
                     val -> val instanceof Integer intVal && intVal > 0
             );
 
+    public static final ModConfigSpec.IntValue BLOCK_INTERFACER_MAX_OFFSET = BUILDER
+            .comment("Maximum offset in blocks of Block Interfacer")
+            .defineInRange("blockInterfacerMaxOffset", 5, 1, 200);
+
     public static int levelToValue(ModConfigSpec.ConfigValue<List<? extends Integer>> cfg, int level) {
         var list = cfg.get();
         return list.get(Math.clamp(level, 0, list.size() - 1));
     }
 
-    public static boolean offsetInRange(byte offset) {
+    public static boolean xpCollectorOffsetInRange(byte offset) {
         return offset >= -XP_COLLECTOR_MAX_OFFSET.get() && offset <= XP_COLLECTOR_MAX_OFFSET.get();
+    }
+
+    public static boolean interfacerOffsetInRange(byte offset) {
+        return offset >= -BLOCK_INTERFACER_MAX_OFFSET.get() && offset <= BLOCK_INTERFACER_MAX_OFFSET.get();
     }
 
     static final ModConfigSpec SPEC = BUILDER.build();
