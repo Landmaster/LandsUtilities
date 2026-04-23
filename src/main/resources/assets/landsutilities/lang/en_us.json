@@ -44,6 +44,7 @@
   "landsutilities.configuration.xpCollectorRadius": "XP Collector Max Radius",
   "landsutilities.configuration.xpCollectorTickCount": "XP Collector Tick Rate",
   "landsutilities.configuration.xpInterfaceCapacity": "XP Interface Capacities",
+  "landsutilities.configuration.blockInterfacerMaxOffset": "Block Interfacer Max Offset",
   "message.landsutilities.empty_remote_control": "Remote control has no linked blocks!",
   "message.landsutilities.linked_remote": "Added to remote: %s %s %s",
   "message.landsutilities.not_remote_control": "No remote control in either hand!",
