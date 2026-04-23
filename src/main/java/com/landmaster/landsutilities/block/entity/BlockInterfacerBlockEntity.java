@@ -130,6 +130,12 @@ public class BlockInterfacerBlockEntity extends BaseBlockEntity implements MenuP
                 }
 
                 if (!level.isEmptyBlock(pos)) {
+                    // Cannot destroy itself
+                    if (pos.equals(worldPosition)) {
+                        cancelDestroyingBlock(player);
+                        return stack;
+                    }
+
                     // Break block
                     int durabilityRemaining = player.gameMode.lastSentState;
                     if (durabilityRemaining < 0) {
