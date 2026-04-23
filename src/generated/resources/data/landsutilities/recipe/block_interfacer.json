@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:arrow",
+    "h": "#minecraft:skulls",
+    "w": "#minecraft:planks"
+  },
+  "pattern": [
+    "waw",
+    "whw",
+    "www"
+  ],
+  "result": {
+    "id": "landsutilities:block_interfacer"
+  }
+}

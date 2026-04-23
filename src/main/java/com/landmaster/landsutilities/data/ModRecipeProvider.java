@@ -74,6 +74,18 @@ public class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_experience_bottle", has(Items.EXPERIENCE_BOTTLE))
                 .save(output);
 
+        shaped(
+                RecipeCategory.MISC, LandsUtilities.BLOCK_INTERFACER
+        )
+                .define('h', ItemTags.SKULLS)
+                .define('w', ItemTags.PLANKS)
+                .define('a', Items.ARROW)
+                .pattern("waw")
+                .pattern("whw")
+                .pattern("www")
+                .unlockedBy("has_skull", has(ItemTags.SKULLS))
+                .save(output);
+
         shapeless(RecipeCategory.MISC, LandsUtilities.REMOTE_CONTROL)
                 .requires(LandsUtilities.REMOTE_CONTROL)
                 .unlockedBy("has_remote_control", has(LandsUtilities.REMOTE_CONTROL))
