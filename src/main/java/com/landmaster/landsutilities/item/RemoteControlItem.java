@@ -123,6 +123,10 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                                             newEntry.pos().toShortString(), newEntry.dimension().identifier().toString(),
                                             Util.directionToComponent(newEntry.face())));
                         }
+                    } else {
+                        player.sendSystemMessage(
+                                Component.translatable("message.landsutilities.remote_block_blacklisted").withStyle(ChatFormatting.RED)
+                        );
                     }
                 }
             }

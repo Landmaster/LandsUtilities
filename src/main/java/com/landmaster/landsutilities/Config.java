@@ -30,6 +30,16 @@ public class Config {
                     null
             );
 
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> REMOTE_CONTROL_WHITELIST = BUILDER
+            .comment("Block IDs of blocks that are whitelisted for working with the Remote Control, ignored if empty. Takes precedence over blacklist if non-empty.")
+            .defineList(
+                    List.of("remoteControlWhitelist"),
+                    List::of,
+                    () -> "",
+                    str -> BuiltInRegistries.BLOCK.containsKey(Identifier.parse(Objects.toString(str))),
+                    null
+            );
+
     public static final ModConfigSpec.IntValue XP_COLLECTOR_RADIUS = BUILDER
             .comment("Radius in blocks of XP Collector")
             .defineInRange("xpCollectorRadius", 3, 1, 200);
@@ -68,13 +78,18 @@ public class Config {
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
+    private static Set<String> remoteControlWhitelist;
     private static Set<String> remoteControlBlacklist;
 
     public static boolean isRemoteBlacklisted(Block block) {
+        if (!remoteControlWhitelist.isEmpty()) {
+            return !remoteControlWhitelist.contains(BuiltInRegistries.BLOCK.getKey(block).toString());
+        }
         return remoteControlBlacklist.contains(BuiltInRegistries.BLOCK.getKey(block).toString());
     }
 
     private static void reloadValueCache() {
+        remoteControlWhitelist = Set.copyOf(REMOTE_CONTROL_WHITELIST.get());
         remoteControlBlacklist = Set.copyOf(REMOTE_CONTROL_BLACKLIST.get());
     }
 
