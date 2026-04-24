@@ -20,8 +20,10 @@ public class ContainerOpenersCounterMixin {
             cancellable = true)
     private void getEntitiesWithContainerOpen(Level level, BlockPos pos, CallbackInfoReturnable<List<ContainerUser>> cir) {
         if (!RemoteControlItem.MENU_TO_REMOTE_RANGE.isEmpty()) {
-            cir.setReturnValue(Stream.concat(cir.getReturnValue().stream(), RemoteControlItem.MENU_TO_REMOTE_RANGE.values().stream()
-                    .map(RemoteControlItem.MenuData::player))
+            var toAdd = RemoteControlItem.MENU_TO_REMOTE_RANGE.values().stream()
+                    .map(RemoteControlItem.MenuData::player)
+                    .filter(player -> ((ContainerOpenersCounter) (Object) this).hasContainerOpen(player, pos));
+            cir.setReturnValue(Stream.concat(cir.getReturnValue().stream(), toAdd)
                     .distinct()
                     .toList());
         }

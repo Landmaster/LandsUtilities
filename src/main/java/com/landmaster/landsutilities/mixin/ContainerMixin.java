@@ -13,7 +13,8 @@ public interface ContainerMixin {
     @ModifyVariable(
             method = "stillValidBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;Lnet/minecraft/world/entity/player/Player;F)Z",
             at = @At("HEAD"),
-            argsOnly = true)
+            argsOnly = true,
+            name = "distanceBuffer")
     private static float injectStillValidBlockEntity(float distanceBuffer, BlockEntity blockEntity, Player player) {
         var data = RemoteControlItem.MENU_TO_REMOTE_RANGE.get(player.containerMenu);
         if (data != null && data.range() > 1.0f) {
