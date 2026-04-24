@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.landmaster.landsutilities.mixin.sophisticatedstorage",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MovingStorageOpenersCounterMixin",
+    "StorageContainerMenuMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

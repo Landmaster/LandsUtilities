@@ -34,6 +34,7 @@ public record RemoteAdvancedMenuPacket(float range, AdvancedOpenScreenPayload op
                 CLIENT_PAYLOAD_HANDLER = Class.forName("net.neoforged.neoforge.client.network.ClientPayloadHandler");
                 CLIENT_PAYLOAD_HANDLER_HANDLE = CLIENT_PAYLOAD_HANDLER.getDeclaredMethod(
                         "handle", AdvancedOpenScreenPayload.class, IPayloadContext.class);
+                CLIENT_PAYLOAD_HANDLER_HANDLE.setAccessible(true);
             } else {
                 CLIENT_PAYLOAD_HANDLER = null;
                 CLIENT_PAYLOAD_HANDLER_HANDLE = null;
