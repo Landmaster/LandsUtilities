@@ -269,7 +269,7 @@ public class LandsUtilities {
 
     @SubscribeEvent
     private static void registerPacketHandlers(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("2");
+        var registrar = event.registrar("3");
         registrar.playBidirectional(SyncMapPacket.TYPE, SyncMapPacket.STREAM_CODEC, SyncMapPacket::handle, SyncMapPacket::handle);
         registrar.playBidirectional(RedstoneConfigPacket.TYPE, RedstoneConfigPacket.STREAM_CODEC, RedstoneConfigPacket::handle, RedstoneConfigPacket::handle);
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);

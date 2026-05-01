@@ -2,6 +2,7 @@ package com.landmaster.landsutilities.network;
 
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.util.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,11 +17,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("UnstableApiUsage")
-public record RemoteAdvancedMenuPacket(float range, AdvancedOpenScreenPayload openScreenPayload) implements CustomPacketPayload {
+public record RemoteAdvancedMenuPacket(float range, BlockPos pos, AdvancedOpenScreenPayload openScreenPayload) implements CustomPacketPayload {
     public static final Type<RemoteAdvancedMenuPacket> TYPE = new Type<>(Util.loc("remote_advanced_menu_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoteAdvancedMenuPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.FLOAT, RemoteAdvancedMenuPacket::range,
+            BlockPos.STREAM_CODEC, RemoteAdvancedMenuPacket::pos,
             AdvancedOpenScreenPayload.STREAM_CODEC, RemoteAdvancedMenuPacket::openScreenPayload,
             RemoteAdvancedMenuPacket::new
     );
@@ -45,15 +47,21 @@ public record RemoteAdvancedMenuPacket(float range, AdvancedOpenScreenPayload op
     }
 
     public void handle(IPayloadContext context) {
-        var oldMenu = context.player().containerMenu;
-        try {
-            CLIENT_PAYLOAD_HANDLER_HANDLE.invoke(null, openScreenPayload, context);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-        var newMenu = context.player().containerMenu;
-        if (newMenu != oldMenu) {
-            RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, new RemoteControlItem.MenuData(context.player(), range));
+        var player = context.player();
+        var level = player.level();
+        if (level.isLoaded(pos) && level.getBlockEntity(pos) != null) {
+            var oldMenu = player.containerMenu;
+            try {
+                CLIENT_PAYLOAD_HANDLER_HANDLE.invoke(null, openScreenPayload, context);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            var newMenu = player.containerMenu;
+            if (newMenu != oldMenu) {
+                RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, new RemoteControlItem.MenuData(context.player(), range));
+            }
+        } else {
+            player.closeContainer();
         }
     }
 
