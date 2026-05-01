@@ -21,8 +21,9 @@ public class ServerPlayerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/common/custom/CustomPacketPayload;)V"))
     private CustomPacketPayload adjustAdvancedMenuPacket(CustomPacketPayload packet) {
         double desiredRange = RemoteControlItem.DESIRED_RANGE.get();
+        var desiredPos = RemoteControlItem.DESIRED_POS.get();
         if (desiredRange > 1.0 && packet instanceof AdvancedOpenScreenPayload openScreenPayload) {
-            return new RemoteAdvancedMenuPacket(desiredRange, openScreenPayload);
+            return new RemoteAdvancedMenuPacket(desiredRange, desiredPos, openScreenPayload);
         }
         return packet;
     }

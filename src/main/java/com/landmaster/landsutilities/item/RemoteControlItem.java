@@ -7,6 +7,7 @@ import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +42,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
             .weakKeys()
             .makeMap();
     public static final ThreadLocal<Double> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0);
+    public static final ThreadLocal<BlockPos> DESIRED_POS = ThreadLocal.withInitial(() -> BlockPos.ZERO);
 
     public RemoteControlItem(Properties properties) {
         super(properties);
@@ -163,6 +165,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                     });
                     try {
                         DESIRED_RANGE.set(desiredRange.doubleValue());
+                        DESIRED_POS.set(link.pos());
                         return new InteractionResultHolder<>(state.useWithoutItem(level, player, new BlockHitResult(
                                 Vec3.atCenterOf(link.pos()).relative(link.face(), 0.5),
                                 link.face(),
