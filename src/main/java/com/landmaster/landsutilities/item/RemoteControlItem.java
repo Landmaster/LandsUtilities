@@ -29,6 +29,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
@@ -72,6 +73,13 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
             return Optional.of(linkedBlocks.get(index));
         }
         return Optional.empty();
+    }
+
+    public static Stream<RemoteControlLink> activeLinks(Player player) {
+        return Arrays.stream(InteractionHand.values())
+                .map(player::getItemInHand)
+                .flatMap(stack -> RemoteControlItem.linked(stack).stream())
+                .filter(link -> link.dimension() == player.level().dimension());
     }
 
     @Nonnull
