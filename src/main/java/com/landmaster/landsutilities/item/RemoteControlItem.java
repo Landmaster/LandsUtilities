@@ -10,11 +10,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
@@ -22,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -32,6 +29,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
@@ -73,6 +71,13 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
             return Optional.of(linkedBlocks.get(index));
         }
         return Optional.empty();
+    }
+
+    public static Stream<RemoteControlLink> activeLinks(Player player) {
+        return Arrays.stream(InteractionHand.values())
+                .map(player::getItemInHand)
+                .flatMap(stack -> RemoteControlItem.linked(stack).stream())
+                .filter(link -> link.dimension() == player.level().dimension());
     }
 
     @Nonnull
@@ -202,18 +207,6 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
     @Override
     public int getEnchantmentValue(@Nonnull ItemStack stack) {
         return 10;
-    }
-
-    @Override
-    public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (entity instanceof ServerPlayer player && level instanceof ServerLevel serverLevel && (isSelected || player.getOffhandItem() == stack)) {
-            linked(stack)
-                    .filter(link -> link.dimension() == level.dimension())
-                    .ifPresent(link -> {
-                        serverLevel.getChunkSource().chunkMap.markChunkPendingToSend(player, new ChunkPos(link.pos()));
-                    });
-        }
     }
 
     @SubscribeEvent
