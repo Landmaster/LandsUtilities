@@ -8,12 +8,13 @@ import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -37,11 +39,12 @@ import java.util.stream.Stream;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RemoteControlItem extends Item implements MouseWheelItem {
+    public record MenuData(Player player, BlockPos pos, float range) {}
 
-    public static final ConcurrentMap<AbstractContainerMenu, Double> MENU_TO_REMOTE_RANGE = new MapMaker()
+    public static final ConcurrentMap<AbstractContainerMenu, MenuData> MENU_TO_REMOTE_RANGE = new MapMaker()
             .weakKeys()
             .makeMap();
-    public static final ThreadLocal<Double> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0);
+    public static final ThreadLocal<Float> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0f);
     public static final ThreadLocal<BlockPos> DESIRED_POS = ThreadLocal.withInitial(() -> BlockPos.ZERO);
 
     public RemoteControlItem(Properties properties) {
@@ -164,7 +167,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                         );
                     });
                     try {
-                        DESIRED_RANGE.set(desiredRange.doubleValue());
+                        DESIRED_RANGE.set(desiredRange.floatValue());
                         DESIRED_POS.set(link.pos());
                         return new InteractionResultHolder<>(state.useWithoutItem(level, player, new BlockHitResult(
                                 Vec3.atCenterOf(link.pos()).relative(link.face(), 0.5),
@@ -173,7 +176,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                                 false
                         )), stack);
                     } finally {
-                        DESIRED_RANGE.set(0.0);
+                        DESIRED_RANGE.set(0.0f);
                     }
                 }
             });
@@ -201,11 +204,24 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
         return 10;
     }
 
+    @Override
+    public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (entity instanceof ServerPlayer player && level instanceof ServerLevel serverLevel && (isSelected || player.getOffhandItem() == stack)) {
+            linked(stack)
+                    .filter(link -> link.dimension() == level.dimension())
+                    .ifPresent(link -> {
+                        serverLevel.getChunkSource().chunkMap.markChunkPendingToSend(player, new ChunkPos(link.pos()));
+                    });
+        }
+    }
+
     @SubscribeEvent
     private static void onContainerOpen(PlayerContainerEvent.Open event) {
-        double desiredRange = DESIRED_RANGE.get();
+        var desiredRange = DESIRED_RANGE.get();
+        var desiredPos = DESIRED_POS.get();
         if (desiredRange > 1.0) {
-            MENU_TO_REMOTE_RANGE.put(event.getContainer(), desiredRange);
+            MENU_TO_REMOTE_RANGE.put(event.getContainer(), new MenuData(event.getEntity(), desiredPos, desiredRange));
         }
     }
 }

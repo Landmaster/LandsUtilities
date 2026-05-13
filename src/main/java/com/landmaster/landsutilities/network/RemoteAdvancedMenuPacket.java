@@ -14,11 +14,11 @@ import net.neoforged.neoforge.network.payload.AdvancedOpenScreenPayload;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("UnstableApiUsage")
-public record RemoteAdvancedMenuPacket(double range, BlockPos pos, AdvancedOpenScreenPayload openScreenPayload) implements CustomPacketPayload {
+public record RemoteAdvancedMenuPacket(float range, BlockPos pos, AdvancedOpenScreenPayload openScreenPayload) implements CustomPacketPayload {
     public static final Type<RemoteAdvancedMenuPacket> TYPE = new Type<>(Util.loc("remote_advanced_menu_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoteAdvancedMenuPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.DOUBLE, RemoteAdvancedMenuPacket::range,
+            ByteBufCodecs.FLOAT, RemoteAdvancedMenuPacket::range,
             BlockPos.STREAM_CODEC, RemoteAdvancedMenuPacket::pos,
             AdvancedOpenScreenPayload.STREAM_CODEC, RemoteAdvancedMenuPacket::openScreenPayload,
             RemoteAdvancedMenuPacket::new
@@ -32,7 +32,7 @@ public record RemoteAdvancedMenuPacket(double range, BlockPos pos, AdvancedOpenS
             ClientPayloadHandler.handle(openScreenPayload, context);
             var newMenu = player.containerMenu;
             if (newMenu != oldMenu) {
-                RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, range);
+                RemoteControlItem.MENU_TO_REMOTE_RANGE.put(newMenu, new RemoteControlItem.MenuData(player, pos, range));
             }
         } else {
             player.closeContainer();

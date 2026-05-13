@@ -5,11 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockStateBaseMixin",
+    "ChunkMapMixin",
     "ContainerOpenersCounterMixin",
     "PlayerMixin",
     "ServerPlayerMixin"
   ],
   "client": [
+    "ClientChunkCacheMixin"
   ],
   "injectors": {
     "defaultRequire": 1

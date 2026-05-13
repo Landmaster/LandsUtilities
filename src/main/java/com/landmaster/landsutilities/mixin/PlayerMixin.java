@@ -11,9 +11,9 @@ public class PlayerMixin {
     @ModifyVariable(method = "canInteractWithBlock(Lnet/minecraft/core/BlockPos;D)Z", at = @At("STORE"), ordinal = 1)
     private double injectCanInteractWithBlock(double distance) {
         var player = (Player) (Object) this;
-        double range = RemoteControlItem.MENU_TO_REMOTE_RANGE.getOrDefault(player.containerMenu, 0.0);
-        if (range > 1.0) {
-            distance *= range;
+        var rangeData = RemoteControlItem.MENU_TO_REMOTE_RANGE.get(player.containerMenu);
+        if (rangeData != null && rangeData.range() > 1.0f) {
+            distance *= rangeData.range();
         }
         return distance;
     }

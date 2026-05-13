@@ -20,7 +20,7 @@ public class ServerPlayerMixin {
     @ModifyArg(method = "openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/common/custom/CustomPacketPayload;)V"))
     private CustomPacketPayload adjustAdvancedMenuPacket(CustomPacketPayload packet) {
-        double desiredRange = RemoteControlItem.DESIRED_RANGE.get();
+        var desiredRange = RemoteControlItem.DESIRED_RANGE.get();
         var desiredPos = RemoteControlItem.DESIRED_POS.get();
         if (desiredRange > 1.0 && packet instanceof AdvancedOpenScreenPayload openScreenPayload) {
             return new RemoteAdvancedMenuPacket(desiredRange, desiredPos, openScreenPayload);
@@ -31,9 +31,10 @@ public class ServerPlayerMixin {
     @Redirect(method = "openMenu(Lnet/minecraft/world/MenuProvider;Ljava/util/function/Consumer;)Ljava/util/OptionalInt;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V"))
     private void adjustMenuPacket(ServerGamePacketListenerImpl instance, Packet<?> packet) {
-        double desiredRange = RemoteControlItem.DESIRED_RANGE.get();
+        var desiredRange = RemoteControlItem.DESIRED_RANGE.get();
+        var desiredPos = RemoteControlItem.DESIRED_POS.get();
         if (desiredRange > 1.0 && packet instanceof ClientboundOpenScreenPacket openScreenPacket) {
-            instance.send(new RemoteMenuPacket(desiredRange, openScreenPacket));
+            instance.send(new RemoteMenuPacket(desiredRange, desiredPos, openScreenPacket));
         } else {
             instance.send(packet);
         }
