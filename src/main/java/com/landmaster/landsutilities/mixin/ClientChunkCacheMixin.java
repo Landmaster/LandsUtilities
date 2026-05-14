@@ -1,5 +1,7 @@
 package com.landmaster.landsutilities.mixin;
 
+import com.landmaster.landsutilities.item.RemoteControlItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
@@ -36,37 +38,37 @@ public class ClientChunkCacheMixin {
 
     @Inject(method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/LevelChunk;", at = @At("RETURN"), cancellable = true)
     private void getChunk(int x, int z, ChunkStatus chunkStatus, boolean requireChunk, CallbackInfoReturnable<LevelChunk> cir) {
-        long chunkPos = ChunkPos.asLong(x, z);
-        if (this.landsUtilities$extraChunks.containsKey(chunkPos)) {
-            cir.setReturnValue(this.landsUtilities$extraChunks.get(chunkPos));
+        if (!storage.inRange(x, z)) {
+            long chunkPos = ChunkPos.asLong(x, z);
+            var chunk = landsUtilities$extraChunks.get(chunkPos);
+            if (chunk != null) {
+                cir.setReturnValue(chunk);
+            }
         }
     }
 
     @Inject(method = "replaceWithPacketData", at = @At("HEAD"), cancellable = true)
     private void replaceWithPacketData(int x, int z, FriendlyByteBuf buffer, CompoundTag tag, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer, CallbackInfoReturnable<LevelChunk> cir) {
-        LevelChunk chunk = null;
         var chunkPos = new ChunkPos(x, z);
-        if (!storage.inRange(x, z)) {
-            chunk = new LevelChunk(level, chunkPos);
-            landsUtilities$extraChunks.put(chunkPos.toLong(), chunk);
-        }
-        if (landsUtilities$extraChunks.containsKey(chunkPos.toLong())) {
-            chunk = landsUtilities$extraChunks.get(chunkPos.toLong());
-            chunk.replaceWithPacketData(buffer, tag, consumer);
-        }
+        var chunk = landsUtilities$extraChunks.computeIfAbsent(chunkPos.toLong(), k ->
+                RemoteControlItem.activeLinks(Minecraft.getInstance().player)
+                        .anyMatch(link -> ChunkPos.asLong(link.pos()) == chunkPos.toLong()) ? new LevelChunk(level, chunkPos) : null
+        );
         if (chunk != null) {
+            chunk.replaceWithPacketData(new FriendlyByteBuf(buffer.copy()), tag, consumer);
             level.onChunkLoaded(chunkPos);
             NeoForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, false));
-            cir.setReturnValue(chunk);
+            if (!storage.inRange(x, z)) {
+                cir.setReturnValue(chunk);
+            }
         }
     }
 
     @Inject(method = "drop", at = @At("HEAD"))
     private void drop(ChunkPos chunkPos, CallbackInfo ci) {
-        var chunk = landsUtilities$extraChunks.get(chunkPos.toLong());
+        var chunk = landsUtilities$extraChunks.remove(chunkPos.toLong());
         if (chunk != null) {
             NeoForge.EVENT_BUS.post(new ChunkEvent.Unload(chunk));
-            landsUtilities$extraChunks.remove(chunkPos.toLong());
         }
     }
 

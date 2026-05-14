@@ -60,7 +60,7 @@ public abstract class ChunkMapMixin {
             }
         }
         for (var oldLink: oldRemoteLinks) {
-            if (!newRemoteLinks.contains(oldLink)) {
+            if (!newRemoteLinks.contains(oldLink) && !player.getChunkTrackingView().contains(oldLink)) {
                 dropChunk(player, oldLink);
             }
         }
