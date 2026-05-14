@@ -8,7 +8,6 @@ import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -30,6 +29,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
@@ -37,11 +37,12 @@ import java.util.stream.Stream;
 
 @EventBusSubscriber(modid = LandsUtilities.MODID)
 public class RemoteControlItem extends Item implements MouseWheelItem {
+    public record MenuData(Player player, BlockPos pos, float range) {}
 
-    public static final ConcurrentMap<AbstractContainerMenu, Double> MENU_TO_REMOTE_RANGE = new MapMaker()
+    public static final ConcurrentMap<AbstractContainerMenu, MenuData> MENU_TO_REMOTE_RANGE = new MapMaker()
             .weakKeys()
             .makeMap();
-    public static final ThreadLocal<Double> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0);
+    public static final ThreadLocal<Float> DESIRED_RANGE = ThreadLocal.withInitial(() -> 0.0f);
     public static final ThreadLocal<BlockPos> DESIRED_POS = ThreadLocal.withInitial(() -> BlockPos.ZERO);
 
     public RemoteControlItem(Properties properties) {
@@ -70,6 +71,13 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
             return Optional.of(linkedBlocks.get(index));
         }
         return Optional.empty();
+    }
+
+    public static Stream<RemoteControlLink> activeLinks(Player player) {
+        return Arrays.stream(InteractionHand.values())
+                .map(player::getItemInHand)
+                .flatMap(stack -> RemoteControlItem.linked(stack).stream())
+                .filter(link -> link.dimension() == player.level().dimension());
     }
 
     @Nonnull
@@ -164,7 +172,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                         );
                     });
                     try {
-                        DESIRED_RANGE.set(desiredRange.doubleValue());
+                        DESIRED_RANGE.set(desiredRange.floatValue());
                         DESIRED_POS.set(link.pos());
                         return new InteractionResultHolder<>(state.useWithoutItem(level, player, new BlockHitResult(
                                 Vec3.atCenterOf(link.pos()).relative(link.face(), 0.5),
@@ -173,7 +181,7 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
                                 false
                         )), stack);
                     } finally {
-                        DESIRED_RANGE.set(0.0);
+                        DESIRED_RANGE.set(0.0f);
                     }
                 }
             });
@@ -203,9 +211,10 @@ public class RemoteControlItem extends Item implements MouseWheelItem {
 
     @SubscribeEvent
     private static void onContainerOpen(PlayerContainerEvent.Open event) {
-        double desiredRange = DESIRED_RANGE.get();
+        var desiredRange = DESIRED_RANGE.get();
+        var desiredPos = DESIRED_POS.get();
         if (desiredRange > 1.0) {
-            MENU_TO_REMOTE_RANGE.put(event.getContainer(), desiredRange);
+            MENU_TO_REMOTE_RANGE.put(event.getContainer(), new MenuData(event.getEntity(), desiredPos, desiredRange));
         }
     }
 }
