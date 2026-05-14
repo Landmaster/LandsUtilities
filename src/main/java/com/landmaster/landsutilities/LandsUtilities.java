@@ -13,7 +13,8 @@ import com.landmaster.landsutilities.util.RemoteControlLink;
 import com.landmaster.landsutilities.util.Util;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.longs.*;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -41,6 +42,8 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent;
+import net.neoforged.neoforge.common.world.chunk.TicketController;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -143,6 +146,12 @@ public class LandsUtilities {
             "remote_control_capacity", builder -> builder.persistent(ConditionalEffect.codec(EnchantmentValueEffect.CODEC, LootContextParamSets.ENCHANTED_ITEM).listOf())
     );
 
+    public static final TicketController REMOTE_CONTROL_TICKETS = new TicketController(Util.loc("remote_control"), (level, helper) -> {
+        for (var uuid: helper.getEntityTickets().keySet()) {
+            helper.removeAllTickets(uuid);
+        }
+    });
+
     public LandsUtilities(IEventBus modEventBus, ModContainer modContainer) {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
@@ -158,7 +167,7 @@ public class LandsUtilities {
 
     @SubscribeEvent
     private static void registerPacketHandlers(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("2");
+        var registrar = event.registrar("3");
         registrar.playBidirectional(IOConfigPacket.TYPE, IOConfigPacket.STREAM_CODEC, IOConfigPacket::handle);
         registrar.playBidirectional(RedstoneConfigPacket.TYPE, RedstoneConfigPacket.STREAM_CODEC, RedstoneConfigPacket::handle);
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
@@ -179,5 +188,10 @@ public class LandsUtilities {
                         .then(RemoteRenameLinkCommand.register(dispatcher))
                         .then(RemoteDeleteLinkCommand.register(dispatcher))
         );
+    }
+
+    @SubscribeEvent
+    private static void registerTicketControllers(RegisterTicketControllersEvent event) {
+        event.register(REMOTE_CONTROL_TICKETS);
     }
 }

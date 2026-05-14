@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class StorageContainerMenuMixin {
     @Redirect(method = "stillValid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;distanceToSqr(DDD)D"))
     private double adjustPlayerDistance(Player instance, double x, double y, double z) {
-        double range = RemoteControlItem.MENU_TO_REMOTE_RANGE.getOrDefault(instance.containerMenu, 0.0);
-        return instance.distanceToSqr(x, y, z) / Math.max(range, 1.0);
+        var rangeData = RemoteControlItem.MENU_TO_REMOTE_RANGE.get(instance.containerMenu);
+        return instance.distanceToSqr(x, y, z) / Math.max(rangeData != null ? rangeData.range() : 1.0, 1.0);
     }
 }
