@@ -10,6 +10,7 @@ import com.landmaster.landsutilities.block.entity.XPCollectorBlockEntity;
 import com.landmaster.landsutilities.block.entity.XPInterfaceBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
+import com.landmaster.landsutilities.item.FacadeWandItem;
 import com.landmaster.landsutilities.item.ModBlockItem;
 import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
@@ -32,9 +33,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -113,6 +116,11 @@ public class LandsUtilities {
                     .persistent(UpgradeInfo.CODEC)
                     .networkSynchronized(UpgradeInfo.STREAM_CODEC)
     );
+    public static final Supplier<DataComponentType<BlockState>> CURRENT_FACADE = DATA_COMPONENTS.registerComponentType(
+            "facade_state", builder -> builder
+                    .persistent(BlockState.CODEC)
+                    .networkSynchronized(ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY))
+    );
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             props -> props
@@ -158,6 +166,8 @@ public class LandsUtilities {
             props -> props.stacksTo(1).enchantable(10));
     public static final DeferredItem<RedstoneWandItem> REDSTONE_WAND = ITEMS.registerItem("redstone_wand", RedstoneWandItem::new,
             props -> props.stacksTo(1));
+    public static final DeferredItem<FacadeWandItem> FACADE_WAND = ITEMS.registerItem("facade_wand", FacadeWandItem::new,
+            props -> props.stacksTo(1));
 
     public static final List<DeferredItem<Item>> CAPACITY_UPGRADES = IntStream.rangeClosed(1, 3)
             .mapToObj(i -> ITEMS.register("capacity_upgrade_" + i, name -> Util.createUpgradeItem(name, new UpgradeInfo("capacity", i))))
@@ -185,6 +195,12 @@ public class LandsUtilities {
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
                     .serialize(Codec.withAlternative(Util.WAND_STATES_CODEC, Util.WAND_STATES_OLD_CODEC).fieldOf("redstone_wand_on_blocks"))
                     .sync(Util.WAND_STATES_STREAM_CODEC)
+                    .build()
+    );
+    public static final Supplier<AttachmentType<Long2ObjectMap<BlockState>>> FACADE_STATES = ATTACHMENT_TYPES.register(
+            "facade_states", () -> AttachmentType.<Long2ObjectMap<BlockState>>builder(() -> new Long2ObjectOpenHashMap<>())
+                    .serialize(Util.FACADE_STATES_CODEC.fieldOf("facade_states"))
+                    .sync(Util.FACADE_STATES_STREAM_CODEC)
                     .build()
     );
 
@@ -244,6 +260,7 @@ public class LandsUtilities {
                         out.accept(AUTO_ANVIL);
                         out.accept(REMOTE_CONTROL);
                         out.accept(REDSTONE_WAND);
+                        out.accept(FACADE_WAND);
                         out.accept(FLUID_XP_BUCKET);
                         out.accept(XP_COLLECTOR);
                         out.accept(XP_INTERFACE);
@@ -277,6 +294,7 @@ public class LandsUtilities {
         registrar.playToClient(RemoteMenuPacket.TYPE, RemoteMenuPacket.STREAM_CODEC, RemoteMenuPacket::handle);
         registrar.playToClient(SyncXPInterfacePacket.TYPE, SyncXPInterfacePacket.STREAM_CODEC, SyncXPInterfacePacket::handle);
         registrar.playToServer(RequestXPInterfacePacket.TYPE, RequestXPInterfacePacket.STREAM_CODEC, RequestXPInterfacePacket::handle);
+        registrar.playToClient(UpdateFacadePacket.TYPE, UpdateFacadePacket.STREAM_CODEC, UpdateFacadePacket::handle);
     }
 
     @SubscribeEvent

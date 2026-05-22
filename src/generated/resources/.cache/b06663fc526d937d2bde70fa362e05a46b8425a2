@@ -1,4 +1,4 @@
-// 26.1.2	2026-04-22T19:30:35.997497714	Model Definitions - landsutilities
+// 26.1.2	2026-05-20T22:20:49.480779067	Model Definitions - landsutilities
 73d21fd8b618becf0141dea71d1b58078aeedba4 assets/landsutilities/blockstates/block_interfacer.json
 809c1cc1a1582919bfae9790f44e772dc5450186 assets/landsutilities/blockstates/fluid_xp.json
 0cf4918544b122d25b5e3d788a108396931c1eb1 assets/landsutilities/blockstates/xp_collector.json
@@ -8,6 +8,7 @@ fb537c7ca242204c318656e196cf2f952eb85a83 assets/landsutilities/items/block_inter
 22d474c12434126fa87cf5b44f784ae5389148de assets/landsutilities/items/capacity_upgrade_1.json
 b9e333559c89b57d7afdcb5e193cbece941d31fa assets/landsutilities/items/capacity_upgrade_2.json
 786af644adb5a46c7a7483f6e6da630c188f8e39 assets/landsutilities/items/capacity_upgrade_3.json
+609702f278d50679d646c472a278d8a30428e9d5 assets/landsutilities/items/facade_wand.json
 7c53c55ae60e70a5e0ca3adc0a61ad12dd3fbc74 assets/landsutilities/items/fluid_xp_bucket.json
 4f25115f4a56a2951b06074e3189066253f42f2b assets/landsutilities/items/redstone_wand.json
 03fdf18f90623bf83e17033a7da3615c3f6b9fc2 assets/landsutilities/items/remote_control.json
@@ -18,6 +19,7 @@ d4bee8cc301b46476f8b033ade41a9a9cc7c319f assets/landsutilities/items/xp_interfac
 49f9fd730bd72cf7cba13e7f6e4e402ab6573d51 assets/landsutilities/models/item/capacity_upgrade_1.json
 c74c5c71eb7f9f22014f39927038c298d4e4b28f assets/landsutilities/models/item/capacity_upgrade_2.json
 ab96878d99f69e7509edd8838bc015991efbd29f assets/landsutilities/models/item/capacity_upgrade_3.json
+adb648fdf1d9a5192ac48a5772349c322e77e9e7 assets/landsutilities/models/item/facade_wand.json
 da8fca7df7356b8407429291326c8e657487eccb assets/landsutilities/models/item/fluid_xp_bucket.json
 3545e411abdcdb105904c927a0284e338dc11469 assets/landsutilities/models/item/redstone_wand.json
 bda79bd1cfdbf3cfe4d10bf271f72f2079596183 assets/landsutilities/models/item/remote_control.json
