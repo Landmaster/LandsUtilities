@@ -1,9 +1,10 @@
-// 26.1.2	2026-04-22T22:23:45.813305976	Land's Utilities Recipes
+// 26.1.2	2026-05-21T20:48:23.144128849	Land's Utilities Recipes
 973221bd3847297c7d4075e3260ad4cb21b8aeaa data/landsutilities/advancement/recipes/misc/auto_anvil.json
 9d05c3ea1b9c25043fdd1dfd8c6f789bfddac042 data/landsutilities/advancement/recipes/misc/block_interfacer.json
 7540f060f61c05afe47d86aecc58765aadcda663 data/landsutilities/advancement/recipes/misc/capacity_upgrade_1.json
 79b6d9d111a517f3cdf0a47690092b5f189b929c data/landsutilities/advancement/recipes/misc/capacity_upgrade_2.json
 810827699d4f205b68c981606889e58c9b0477d0 data/landsutilities/advancement/recipes/misc/capacity_upgrade_3.json
+10e7bce6d53979330d41c27b27c0199a11ce9e91 data/landsutilities/advancement/recipes/misc/facade_wand.json
 6c9e81c8eb76c0ee174e05cdbf4b23a2e052f8c2 data/landsutilities/advancement/recipes/misc/remote_control.json
 940cf37562a95a36e0aaef65a6641e03e6fdfae8 data/landsutilities/advancement/recipes/misc/remote_control_reset.json
 839729e3eb5b6944accb29198e6bafe1207f8e11 data/landsutilities/advancement/recipes/misc/xp_collector.json
@@ -14,6 +15,7 @@
 cd4c4a2e8a5ea95cc43c995c82577ec479224531 data/landsutilities/recipe/capacity_upgrade_1.json
 3e63a3af25ed54b6cb8aeb4219e9b7dc0f2d250f data/landsutilities/recipe/capacity_upgrade_2.json
 9877ddfbd05f32bc7a54689d26918b35a5dde3b1 data/landsutilities/recipe/capacity_upgrade_3.json
+4db84a69893abec2ffac95c159f9978246cc6fd6 data/landsutilities/recipe/facade_wand.json
 5551481aa48b3c105db65666850c61de84e28e6c data/landsutilities/recipe/redstone_wand.json
 fedbf927977612804a0157cf7fc66dfefca035b7 data/landsutilities/recipe/remote_control.json
 56b14f045c7462338946e16a25bddc1eba53634b data/landsutilities/recipe/remote_control_reset.json

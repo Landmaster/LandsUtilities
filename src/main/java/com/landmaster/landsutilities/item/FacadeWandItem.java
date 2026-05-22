@@ -2,6 +2,7 @@ package com.landmaster.landsutilities.item;
 
 import com.landmaster.landsutilities.LandsUtilities;
 import com.landmaster.landsutilities.network.UpdateFacadePacket;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -10,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -26,7 +26,11 @@ public class FacadeWandItem extends Item {
     @SuppressWarnings("deprecation")
     @Override
     public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull Item.TooltipContext context, @Nonnull TooltipDisplay display, @Nonnull Consumer<Component> builder, @Nonnull TooltipFlag tooltipFlag) {
-
+        builder.accept(Component.translatable("tooltip.landsutilities.facade_wand").withStyle(ChatFormatting.AQUA));
+        var facade = itemStack.get(LandsUtilities.CURRENT_FACADE);
+        if (facade != null) {
+            builder.accept(Component.translatable("tooltip.landsutilities.facade_wand.current_facade", facade.toString()).withStyle(ChatFormatting.YELLOW));
+        }
     }
 
     @Nonnull
@@ -52,9 +56,11 @@ public class FacadeWandItem extends Item {
                 var facadeData = chunk.getData(LandsUtilities.FACADE_STATES);
                 if (facadeData.get(clickedPos.asLong()) != currentFacade) {
                     chunk.getData(LandsUtilities.FACADE_STATES).put(clickedPos.asLong(), currentFacade);
+                    chunk.markUnsaved();
                     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, chunk.getPos(), new UpdateFacadePacket(clickedPos, currentFacade));
                 } else {
                     chunk.getData(LandsUtilities.FACADE_STATES).remove(clickedPos.asLong());
+                    chunk.markUnsaved();
                     PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, chunk.getPos(), new UpdateFacadePacket(clickedPos, Blocks.AIR.defaultBlockState()));
                 }
             }
