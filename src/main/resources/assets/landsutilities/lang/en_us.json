@@ -33,6 +33,7 @@
   "item.landsutilities.capacity_upgrade_1": "Capacity Upgrade 1",
   "item.landsutilities.capacity_upgrade_2": "Capacity Upgrade 2",
   "item.landsutilities.capacity_upgrade_3": "Capacity Upgrade 3",
+  "item.landsutilities.facade_wand": "Facade Wand",
   "item.landsutilities.fluid_xp_bucket": "Fluid XP Bucket",
   "item.landsutilities.landsutilities_guide": "Land's Utilities Guide",
   "item.landsutilities.redstone_wand": "Redstone Wand (mode: %s)",
@@ -72,5 +73,6 @@
   "tooltip.landsutilities.remote_control.5": "Use /landutilities delete_link to remove the selected block from the remote",
   "tooltip.landsutilities.xp_collector": "Collects XP orbs and stores them as fluid XP to the connected tank",
   "tooltip.landsutilities.xp_interface": "Acts like a fluid XP tank; the player can also load/store XP levels into it.",
-  "upgrade.landsutilities.capacity": "Capacity Upgrade"
+  "upgrade.landsutilities.capacity": "Capacity Upgrade",
+  "message.landsutilities.facade_wand.set_wand_facade": "Set facade block to %s"
 }

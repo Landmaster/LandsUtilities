@@ -11,7 +11,8 @@
     "ServerPlayerMixin"
   ],
   "client": [
-    "ClientChunkCacheMixin"
+    "ClientChunkCacheMixin",
+    "SectionCompilerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

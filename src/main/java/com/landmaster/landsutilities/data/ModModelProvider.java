@@ -32,6 +32,7 @@ public class ModModelProvider extends ModelProvider {
 
         itemModels.generateFlatItem(LandsUtilities.REMOTE_CONTROL.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(LandsUtilities.REDSTONE_WAND.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(LandsUtilities.FACADE_WAND.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
         itemModels.generateFlatItem(LandsUtilities.FLUID_XP_BUCKET.get(), ModelTemplates.FLAT_ITEM);
         for (var capacityUpgrade: LandsUtilities.CAPACITY_UPGRADES) {
             itemModels.generateFlatItem(capacityUpgrade.get(), ModelTemplates.FLAT_ITEM);
