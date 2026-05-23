@@ -4,6 +4,7 @@ import com.landmaster.landsutilities.block.AutoAnvilBlock;
 import com.landmaster.landsutilities.block.entity.AutoAnvilBlockEntity;
 import com.landmaster.landsutilities.command.RemoteDeleteLinkCommand;
 import com.landmaster.landsutilities.command.RemoteRenameLinkCommand;
+import com.landmaster.landsutilities.item.FacadeWandItem;
 import com.landmaster.landsutilities.item.RedstoneWandItem;
 import com.landmaster.landsutilities.item.RemoteControlItem;
 import com.landmaster.landsutilities.menu.AutoAnvilMenu;
@@ -26,9 +27,11 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -98,6 +101,11 @@ public class LandsUtilities {
                     .persistent(RedstoneWandState.Type.CODEC)
                     .networkSynchronized(RedstoneWandState.Type.STREAM_CODEC)
     );
+    public static final Supplier<DataComponentType<BlockState>> CURRENT_FACADE = DATA_COMPONENTS.registerComponentType(
+            "facade_state", builder -> builder
+                    .persistent(BlockState.CODEC)
+                    .networkSynchronized(ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY))
+    );
 
     public static final DeferredBlock<AutoAnvilBlock> AUTO_ANVIL = BLOCKS.registerBlock("auto_anvil", AutoAnvilBlock::new,
             BlockBehaviour.Properties.of()
@@ -112,6 +120,8 @@ public class LandsUtilities {
     public static final DeferredItem<RemoteControlItem> REMOTE_CONTROL = ITEMS.registerItem("remote_control", RemoteControlItem::new,
             new Item.Properties().stacksTo(1));
     public static final DeferredItem<RedstoneWandItem> REDSTONE_WAND = ITEMS.registerItem("redstone_wand", RedstoneWandItem::new,
+            new Item.Properties().stacksTo(1));
+    public static final DeferredItem<FacadeWandItem> FACADE_WAND = ITEMS.registerItem("facade_wand", FacadeWandItem::new,
             new Item.Properties().stacksTo(1));
 
     public static final Supplier<BlockEntityType<AutoAnvilBlockEntity>> AUTO_ANVIL_TE = BLOCK_ENTITIES.register("auto_anvil",
@@ -128,6 +138,7 @@ public class LandsUtilities {
                         out.accept(AUTO_ANVIL);
                         out.accept(REMOTE_CONTROL);
                         out.accept(REDSTONE_WAND);
+                        out.accept(FACADE_WAND);
                     })
                     .build());
 
@@ -135,6 +146,12 @@ public class LandsUtilities {
             "redstone_wand_on_blocks", () -> AttachmentType.<Long2ObjectMap<RedstoneWandState>>builder(() -> new Long2ObjectOpenHashMap<>())
                     .serialize(Codec.withAlternative(Util.WAND_STATES_CODEC, Util.WAND_STATES_OLD_CODEC))
                     .sync(Util.WAND_STATES_STREAM_CODEC)
+                    .build()
+    );
+    public static final Supplier<AttachmentType<Long2ObjectMap<BlockState>>> FACADE_STATES = ATTACHMENT_TYPES.register(
+            "facade_states", () -> AttachmentType.<Long2ObjectMap<BlockState>>builder(() -> new Long2ObjectOpenHashMap<>())
+                    .serialize(Util.FACADE_STATES_CODEC)
+                    .sync(Util.FACADE_STATES_STREAM_CODEC)
                     .build()
     );
 
@@ -173,6 +190,7 @@ public class LandsUtilities {
         registrar.playToServer(MouseWheelPacket.TYPE, MouseWheelPacket.STREAM_CODEC, MouseWheelPacket::handle);
         registrar.playToClient(RemoteAdvancedMenuPacket.TYPE, RemoteAdvancedMenuPacket.STREAM_CODEC, RemoteAdvancedMenuPacket::handle);
         registrar.playToClient(RemoteMenuPacket.TYPE, RemoteMenuPacket.STREAM_CODEC, RemoteMenuPacket::handle);
+        registrar.playToClient(UpdateFacadePacket.TYPE, UpdateFacadePacket.STREAM_CODEC, UpdateFacadePacket::handle);
     }
 
     @SubscribeEvent

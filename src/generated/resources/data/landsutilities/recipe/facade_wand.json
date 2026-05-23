@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "minecraft:ghast_tear"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "  g",
+    " s ",
+    "s  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "landsutilities:facade_wand"
+  }
+}

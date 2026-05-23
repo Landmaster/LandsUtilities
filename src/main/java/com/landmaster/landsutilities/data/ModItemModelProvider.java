@@ -21,6 +21,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         basicItem(LandsUtilities.REMOTE_CONTROL.get());
         handheldItem(LandsUtilities.REDSTONE_WAND.get());
+        handheldItem(LandsUtilities.FACADE_WAND.get());
     }
 
     @SubscribeEvent

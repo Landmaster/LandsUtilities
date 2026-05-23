@@ -64,6 +64,17 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("c  ")
                 .unlockedBy("has_redstone", has(Tags.Items.DUSTS_REDSTONE))
                 .save(output);
+
+        ShapedRecipeBuilder.shaped(
+                RecipeCategory.MISC, LandsUtilities.FACADE_WAND
+        )
+                .define('g', Items.GHAST_TEAR)
+                .define('s', Items.STICK)
+                .pattern("  g")
+                .pattern(" s ")
+                .pattern("s  ")
+                .unlockedBy("has_ghast_tear", has(Items.GHAST_TEAR))
+                .save(output);
     }
 
     @SubscribeEvent

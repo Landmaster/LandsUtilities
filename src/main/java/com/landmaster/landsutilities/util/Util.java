@@ -14,6 +14,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,8 +44,18 @@ public class Util {
             ),
             map -> DataResult.error(() -> "Can't serialize from old wand state codec!")
     );
-    public static final Codec<LongSet> LONG_SET_CODEC = Codec.LONG_STREAM.xmap(LongOpenHashSet::toSet, LongCollection::longStream);
-    public static final StreamCodec<ByteBuf, LongSet> LONG_SET_STREAM_CODEC = ByteBufCodecs.VAR_LONG.apply(ByteBufCodecs.collection(LongOpenHashSet::new));
+
+    public static final Codec<Long2ObjectMap<BlockState>> FACADE_STATES_CODEC = Codec.pair(
+            Codec.LONG.fieldOf("pos").codec(), BlockState.CODEC.fieldOf("facade").codec()
+    ).listOf().xmap(
+            list -> list.stream().collect(Collectors.toMap(Pair::getFirst, Pair::getSecond, (a, b) -> a, Long2ObjectOpenHashMap::new)),
+            map -> map.long2ObjectEntrySet().stream().map(entry -> Pair.of(entry.getLongKey(), entry.getValue())).toList()
+    );
+    public static final StreamCodec<ByteBuf, Long2ObjectMap<BlockState>> FACADE_STATES_STREAM_CODEC = ByteBufCodecs.map(
+            Long2ObjectOpenHashMap::new,
+            ByteBufCodecs.VAR_LONG,
+            ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY)
+    );
 
     public static ResourceLocation loc(String path) {
         return ResourceLocation.fromNamespaceAndPath(LandsUtilities.MODID, path);
