@@ -44,11 +44,11 @@ public abstract class SectionCompilerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;")
     )
     private BlockState getBlockStateToRender(RenderChunkRegion instance, BlockPos pos, Operation<BlockState> original,
-                                             @Local(name = "visgraph") VisGraph visgraph,
-                                             @Local(name = "map") Map<RenderType, BufferBuilder> map,
-                                             @Local(name = "sectionBufferBuilderPack") SectionBufferBuilderPack sectionBufferBuilderPack,
-                                             @Local(name = "randomsource") RandomSource randomsource,
-                                             @Local(name = "posestack") PoseStack posestack) {
+                                             @Local VisGraph visgraph,
+                                             @Local Map<RenderType, BufferBuilder> map,
+                                             @Local(argsOnly = true) SectionBufferBuilderPack sectionBufferBuilderPack,
+                                             @Local RandomSource randomsource,
+                                             @Local PoseStack posestack) {
         var chunk = Minecraft.getInstance().level.getChunk(pos);
         var facadeToRender = chunk.getData(LandsUtilities.FACADE_STATES).get(pos.asLong());
         if (facadeToRender != null && facadeToRender.getRenderShape() == RenderShape.MODEL && !facadeToRender.isAir()) {
