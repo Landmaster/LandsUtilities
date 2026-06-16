@@ -1,0 +1,8 @@
+{
+  "item_settings": {
+    "display_name": {
+      "type": "translatable",
+      "translate": "item.landsutilities.landsutilities_guide"
+    }
+  }
+}

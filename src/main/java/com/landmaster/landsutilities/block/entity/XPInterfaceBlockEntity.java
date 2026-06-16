@@ -68,6 +68,7 @@ public class XPInterfaceBlockEntity extends BaseBlockEntity implements MenuProvi
         }
 
         @Override
+        @Nonnull
         public FluidResource getResource(int index) {
             return FluidResource.of(LandsUtilities.FLUID_XP_STILL);
         }

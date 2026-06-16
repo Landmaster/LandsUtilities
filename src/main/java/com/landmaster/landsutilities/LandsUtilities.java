@@ -24,10 +24,13 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
@@ -46,6 +49,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -257,6 +261,16 @@ public class LandsUtilities {
                     .icon(AUTO_ANVIL::toStack)
                     .title(Component.translatable("tab.landsutilities"))
                     .displayItems((params, out) -> {
+                        if (ModList.get().isLoaded("guideme")) {
+                            var guide = BuiltInRegistries.ITEM.get(Identifier.fromNamespaceAndPath("guideme", "guide")).get();
+                            var guideIdType = (DataComponentType<Identifier>)
+                                    BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.fromNamespaceAndPath("guideme", "guide_id"));
+                            out.accept(
+                                    new ItemStack(guide, 1, DataComponentPatch.builder()
+                                            .set(guideIdType, Util.loc("landsutilities_guide"))
+                                            .build())
+                            );
+                        }
                         out.accept(AUTO_ANVIL);
                         out.accept(REMOTE_CONTROL);
                         out.accept(REDSTONE_WAND);
