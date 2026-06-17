@@ -20,21 +20,41 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 public class LevelRendering {
     @SubscribeEvent
     private static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
-            var level = Minecraft.getInstance().level;
-            var entity = event.getCamera().getEntity();
-            if (entity instanceof Player player
-                    && (player.getMainHandItem().is(LandsUtilities.REDSTONE_WAND)
-                    || player.getOffhandItem().is(LandsUtilities.REDSTONE_WAND))) {
-                var originChunkPos = player.chunkPosition();
+        var level = Minecraft.getInstance().level;
+        var entity = event.getCamera().getEntity();
+        var cameraPos = event.getCamera().getPosition();
+
+        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES
+            && entity instanceof Player player) {
+
+            var originChunkPos = player.chunkPosition();
+            var vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
+
+            if (player.getMainHandItem().is(LandsUtilities.REDSTONE_WAND)
+                    || player.getOffhandItem().is(LandsUtilities.REDSTONE_WAND)) {
                 var cursor = new BlockPos.MutableBlockPos();
-                var vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
-                var cameraPos = event.getCamera().getPosition();
                 for (int i = -2; i <= 2; ++i) {
                     for (int j = -2; j <= 2; ++j) {
                         var chunk = level.getChunk(originChunkPos.x + i, originChunkPos.z + j);
                         chunk.getData(LandsUtilities.REDSTONE_WAND_ON_BLOCKS).forEach((pos, val) -> {
                             var color = val.type().getColor();
+                            cursor.set(pos);
+                            renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
+                                    cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
+                                    FastColor.ARGB32.red(color) / 256.0f, FastColor.ARGB32.green(color) / 256.0f,
+                                    FastColor.ARGB32.blue(color) / 256.0f, FastColor.ARGB32.alpha(color) / 256.0f);
+                        });
+                    }
+                }
+            }
+            if (player.getMainHandItem().is(LandsUtilities.FACADE_WAND)
+                    || player.getOffhandItem().is(LandsUtilities.FACADE_WAND)) {
+                var cursor = new BlockPos.MutableBlockPos();
+                for (int i = -2; i <= 2; ++i) {
+                    for (int j = -2; j <= 2; ++j) {
+                        var chunk = level.getChunk(originChunkPos.x + i, originChunkPos.z + j);
+                        chunk.getData(LandsUtilities.FACADE_STATES).forEach((pos, state) -> {
+                            int color = 0xff07fcbf;
                             cursor.set(pos);
                             renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
                                     cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
