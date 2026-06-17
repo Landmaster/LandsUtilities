@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -15,7 +14,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = LandsUtilities.MODID)
@@ -39,6 +37,22 @@ public class LevelRendering {
                         renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
                                 cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
                                 color, 1);
+                    });
+                }
+            }
+        }
+        if (player.getMainHandItem().is(LandsUtilities.FACADE_WAND)
+            || player.getOffhandItem().is(LandsUtilities.FACADE_WAND)) {
+            var originChunkPos = player.chunkPosition();
+            var cursor = new BlockPos.MutableBlockPos();
+            for (int i = -2; i <= 2; ++i) {
+                for (int j = -2; j <= 2; ++j) {
+                    var chunk = level.getChunk(originChunkPos.x() + i, originChunkPos.z() + j);
+                    chunk.getData(LandsUtilities.FACADE_STATES).forEach((pos, state) -> {
+                        cursor.set(pos);
+                        renderShape(event.getPoseStack(), vertexConsumer, Shapes.block(),
+                                cursor.getX() - cameraPos.x, cursor.getY() - cameraPos.y, cursor.getZ() - cameraPos.z,
+                                0xff07fcbf, 1);
                     });
                 }
             }
