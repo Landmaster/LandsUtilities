@@ -94,7 +94,7 @@ public class XPInterfaceBlockEntity extends BaseBlockEntity implements MenuProvi
             int inserted = (int) Math.min(getCapacityAsLong(index, resource) - getAmountAsLong(index), amount);
             if (inserted > 0) {
                 journal.updateSnapshots(transaction);
-                fluidXp += amount;
+                fluidXp += inserted;
             }
             return inserted;
         }
@@ -105,7 +105,7 @@ public class XPInterfaceBlockEntity extends BaseBlockEntity implements MenuProvi
             int extracted = Math.min(fluidXp, amount);
             if (extracted > 0) {
                 journal.updateSnapshots(transaction);
-                fluidXp -= amount;
+                fluidXp -= extracted;
             }
             return extracted;
         }
